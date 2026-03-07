@@ -1,0 +1,15 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Tema Oscuro (Night Mode) Base de la Aplicación -->
+    <style name="Base.Theme.OdooApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Colores Principales -->
+        <item name="colorPrimary">@color/stack_blue_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/stack_teal_accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Color de la barra de estado superior del teléfono -->
+        <item name="android:statusBarColor" tools:targetApi="l">@color/stack_blue_primary</item>
+    </style>
+
+    <style name="Theme.OdooApp" parent="Base.Theme.OdooApp" />
+</resources>

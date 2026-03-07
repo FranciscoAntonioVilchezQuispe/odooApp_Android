@@ -1,0 +1,25 @@
+<resources>
+    <!-- Textos Generales -->
+    <string name="app_name">Odoo App</string>
+
+    <!-- Textos de Login -->
+    <string name="login_title">STACK PERÚ</string>
+    <string name="login_subtitle">PARTNERS S.A.C.</string>
+    <string name="login_slogan">Socios en tecnología, Aliados en tu operación</string>
+    <string name="email_hint">Correo Electrónico</string>
+    <string name="password_hint">Contraseña</string>
+    <string name="btn_login">INICIAR SESIÓN</string>
+
+    <!-- Textos de la App -->
+    <string name="contacts_title">Contactos</string>
+    <string name="kanban_view">Malla (Kanban)</string>
+    <string name="list_view">Lista</string>
+    <string name="pivot_view">Resumen (Pivot)</string>
+
+    <!-- Etiquetas de Formularios -->
+    <string name="name_label">Nombre:</string>
+    <string name="email_label">Email:</string>
+    <string name="phone_label">Teléfono:</string>
+    <string name="vat_label">Nro. Identidad (VAT):</string>
+    <string name="address_label">Dirección:</string>
+</resources>

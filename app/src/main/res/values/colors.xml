@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores corporativos de Stack Perú Partners -->
+    <color name="stack_blue_primary">#0A1128</color> <!-- Azul Marino Oscuro -->
+    <color name="stack_blue_light">#1A2552</color>
+    <color name="stack_teal_accent">#007B7F</color> <!-- Verde/Cyan (Teal) del logo -->
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="gray_light">#F5F5F5</color>
+    <color name="gray_dark">#666666</color>
+    <color name="red_logout">#D32F2F</color> <!-- Color para el botón de cerrar sesión -->
+
+    <!-- Colores principales de la aplicación vinculados al tema -->
+    <color name="colorPrimary">@color/stack_blue_primary</color>
+    <color name="colorPrimaryVariant">@color/stack_blue_light</color>
+    <color name="colorOnPrimary">@color/white</color>
+
+    <color name="colorSecondary">@color/stack_teal_accent</color>
+    <color name="colorSecondaryVariant">#005558</color>
+    <color name="colorOnSecondary">@color/white</color>
+</resources>
