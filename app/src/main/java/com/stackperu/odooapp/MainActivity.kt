@@ -1,10 +1,10 @@
 package com.stackperu.odooapp
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -15,10 +15,7 @@ import com.bumptech.glide.load.model.LazyHeaders
 import com.stackperu.odooapp.api.RetrofitClient
 import com.stackperu.odooapp.data.UserSession
 import com.stackperu.odooapp.databinding.ActivityMainBinding
-import com.stackperu.odooapp.model.CallKwParams
 import com.stackperu.odooapp.model.Contact
-import com.stackperu.odooapp.model.Kwargs
-import com.stackperu.odooapp.model.OdooRequest
 import com.stackperu.odooapp.ui.contact.ContactAdapter
 import com.stackperu.odooapp.ui.contact.ContactDetailActivity
 import com.stackperu.odooapp.ui.login.LoginActivity
@@ -26,7 +23,7 @@ import kotlinx.coroutines.launch
 
 /**
  * MainActivity maneja la vista principal: muestra los contactos en modo Kanban, Lista o Pivot.
- * Ajustado para Odoo 19 con soporte para descargar el avatar.
+ * Ahora recibe la lista inicial de contactos desde el Intent del Login, evitando condiciones de carrera.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -48,10 +45,30 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupTopBar()
+        loadContactsFromIntent() // Reemplaza a fetchContacts()
         setupRecyclerView()
         setupViewSelectors()
+    }
 
-        fetchContacts()
+    /**
+     * Extrae la lista de contactos que LoginActivity empaquetó y descargó previamente.
+     */
+    private fun loadContactsFromIntent() {
+        try {
+            val initialList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                // Para Android 13+ hay que usar este método seguro con generics
+                intent.getSerializableExtra("INITIAL_CONTACTS", ArrayList::class.java) as? ArrayList<Contact>
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getSerializableExtra("INITIAL_CONTACTS") as? ArrayList<Contact>
+            }
+
+            if (initialList != null) {
+                contactList = initialList
+            }
+        } catch (e: Exception) {
+            Log.e("OdooApp", "Error al desempaquetar contactos iniciales", e)
+        }
     }
 
     /**
@@ -145,57 +162,8 @@ class MainActivity : AppCompatActivity() {
             binding.recyclerView.visibility = View.GONE
             binding.tvPivotView.visibility = View.VISIBLE
             val totalContacts = contactList.size
-            binding.tvPivotView.text = "Resumen (Pivot):\nTotal de Contactos: \$totalContacts"
-        }
-    }
-
-    /**
-     * Obtiene los contactos (res.partner) usando la ruta moderna call_kw de Odoo 19.
-     */
-    private fun fetchContacts() {
-        binding.progressBar.visibility = View.VISIBLE
-        lifecycleScope.launch {
-            try {
-                // Preparamos los parámetros del ORM: env['res.partner'].search_read([], ['name', ...])
-                val callKwParams = CallKwParams(
-                    model = "res.partner",
-                    method = "search_read",
-                    args = listOf(emptyList<Any>()), // Dominio vacío = traer todos los contactos
-                    kwargs = Kwargs(
-                        // Añadimos 'image_128' para traernos el avatar en Base64
-                        fields = listOf("id", "name", "email", "phone", "vat", "image_128")
-                    )
-                )
-                val request = OdooRequest(params = callKwParams)
-
-                val response = RetrofitClient.apiService.getContacts(request)
-                
-                if (response.isSuccessful && response.body()?.result != null) {
-                    val list = response.body()!!.result!!
-                    contactList = list
-                    contactAdapter.updateData(list)
-                    
-                    if (list.isEmpty()) {
-                         Toast.makeText(this@MainActivity, "No hay contactos registrados", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    val odooError = response.body()?.error
-                    if (odooError != null) {
-                        val errorMsg = "Error Odoo: \${odooError.message} - \${odooError.data?.message}"
-                        Log.e("OdooApp", errorMsg)
-                        Toast.makeText(this@MainActivity, errorMsg, Toast.LENGTH_LONG).show()
-                    } else {
-                        val httpError = "Error HTTP: \${response.code()} \${response.message()}"
-                        Log.e("OdooApp", httpError)
-                        Toast.makeText(this@MainActivity, httpError, Toast.LENGTH_LONG).show()
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("OdooApp", "Excepción al traer contactos", e)
-                Toast.makeText(this@MainActivity, "Error de red: \${e.message}", Toast.LENGTH_LONG).show()
-            } finally {
-                binding.progressBar.visibility = View.GONE
-            }
+            // Se corrigió el uso de plantillas de string ("$")
+            binding.tvPivotView.text = "Resumen (Pivot):\nTotal de Contactos: $totalContacts"
         }
     }
 }

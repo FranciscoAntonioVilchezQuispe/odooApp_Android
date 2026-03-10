@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:fitsSystemWindows="true"
     tools:context=".ui.login.LoginActivity">
 
     <!-- Logo de la Empresa -->
@@ -12,7 +13,7 @@
         android:id="@+id/ivLogo"
         android:layout_width="160dp"
         android:layout_height="160dp"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="32dp"
         android:src="@drawable/logo_stack_peru"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
