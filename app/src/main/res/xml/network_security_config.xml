@@ -5,6 +5,8 @@
         <domain includeSubdomains="true">10.0.2.2</domain>
         <domain includeSubdomains="true">localhost</domain>
         <!-- Replace with your PC IP if testing on real device -->
+        <domain includeSubdomains="true">192.168.100.51</domain>
+        <domain includeSubdomains="true">192.168.100.16</domain>
         <domain includeSubdomains="true">192.168.1.1</domain>
     </domain-config>
 </network-security-config>

@@ -16,10 +16,15 @@
     <string name="list_view">Lista</string>
     <string name="pivot_view">Resumen (Pivot)</string>
 
-    <!-- Etiquetas de Formularios -->
-    <string name="name_label">Nombre:</string>
-    <string name="email_label">Email:</string>
-    <string name="phone_label">Teléfono:</string>
-    <string name="vat_label">Nro. Identidad (VAT):</string>
-    <string name="address_label">Dirección:</string>
+    <!-- Detalles y Etiquetas -->
+    <string name="name_label">Nombre / Razón Social:</string>
+    <string name="email_label">Correo Electrónico:</string>
+    <string name="phone_label">Teléfono / Celular:</string>
+    <string name="vat_label">RUC / DNI (Documento):</string>
+    <string name="address_label">Dirección Fiscal:</string>
+
+    <!-- Facturación -->
+    <string name="invoice_sale_title">Facturación de Venta</string>
+    <string name="invoice_purchase_title">Registro de Compra</string>
+    <string name="currency_symbol">S/</string>
 </resources>

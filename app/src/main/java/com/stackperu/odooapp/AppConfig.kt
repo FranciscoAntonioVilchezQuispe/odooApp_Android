@@ -6,15 +6,12 @@ package com.stackperu.odooapp
  */
 object AppConfig {
     /**
-     * URL base de la instancia de Odoo.
-     * IMPORTANTE: 10.0.2.2 es la IP virtual que usa el emulador de Android para alcanzar el localhost de tu PC.
-     * Si vas a probar en un celular físico (por USB o WiFi), debes poner la IP de tu PC en la red local.
-     * Ejemplo: "http://192.168.1.25:8069"
+     * URL base de la instancia de Odoo de producción.
      */
-    const val BASE_URL = "http://10.0.2.2:8069"
+    const val BASE_URL = "https://intranet.stackperupartners.com"
 
     /**
-     * Nombre EXACTO de la base de datos de PostgreSQL configurada en tu Odoo 19.
+     * Nombre de la base de datos de Odoo.
      */
-    const val DATABASE_NAME = "odoo_db"
+    const val DATABASE_NAME = "STACK"
 }

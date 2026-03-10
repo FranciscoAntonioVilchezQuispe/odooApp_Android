@@ -19,4 +19,10 @@
     <color name="colorSecondary">@color/stack_teal_accent</color>
     <color name="colorSecondaryVariant">#005558</color>
     <color name="colorOnSecondary">@color/white</color>
+
+    <!-- Colores Odoo 19 para custom_invoicing -->
+    <color name="odoo_primary">#017E84</color>
+    <color name="odoo_secondary">#875A7B</color>
+    <color name="odoo_background">#F5F5F5</color>
+    <color name="odoo_text">#333333</color>
 </resources>

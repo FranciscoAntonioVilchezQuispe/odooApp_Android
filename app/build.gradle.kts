@@ -37,6 +37,23 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+
+    sourceSets {
+        getByName("main") {
+            res.srcDirs(
+                "src/main/res/layouts/acceso",
+                "src/main/res/layouts/contactos",
+                "src/main/res/layouts/facturacion",
+                "src/main/res/layouts/principal",
+                "src/main/res/layouts/compartido",
+                "src/main/res"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -51,6 +68,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.3")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation(libs.okhttp.logging.interceptor)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
