@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvProductTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/odoo_text"
+            android:textStyle="bold"
+            tools:text="Producto de Ejemplo Odoo"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/tvQtyPrice"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/gray_dark"
+                android:textSize="12sp"
+                tools:text="1.00 x S/ 100.00"/>
+
+            <TextView
+                android:id="@+id/tvLineSubtotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/odoo_primary"
+                android:textStyle="bold"
+                tools:text="S/ 118.00 (inc. IGV)"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvTax"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="IGV 18%"
+            android:textSize="10sp"
+            android:textColor="@color/stack_teal_accent"
+            android:background="@drawable/white_rounded_bg"
+            android:paddingHorizontal="4dp"/>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
