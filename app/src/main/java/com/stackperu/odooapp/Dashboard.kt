@@ -53,8 +53,16 @@ class Dashboard : AppCompatActivity() {
     }
 
     private fun configurarAcciones() {
-        binding.cardContacts.setOnClickListener {
-            startActivity(Intent(this, ListaContactos::class.java))
+        binding.cardClients.setOnClickListener {
+            startActivity(Intent(this, com.stackperu.odooapp.ui.contact.ListaClientes::class.java))
+        }
+
+        binding.cardNewProduct.setOnClickListener {
+            startActivity(Intent(this, com.stackperu.odooapp.ui.invoice.ListaProductos::class.java))
+        }
+
+        binding.cardAgenda.setOnClickListener {
+            startActivity(Intent(this, com.stackperu.odooapp.ui.contact.ListaContactos::class.java))
         }
 
         binding.cardSale.setOnClickListener {

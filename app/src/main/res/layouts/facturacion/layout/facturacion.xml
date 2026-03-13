@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/odoo_background"
-    tools:context=".ui.invoice.InvoiceActivity">
+    tools:context=".ui.invoice.Facturacion">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBar"
@@ -79,11 +79,51 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- SECCIÓN TIPO DE CAMBIO (SUNAT) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardExchangeRate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/odoo_surface">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        app:tint="@color/odoo_primary"/>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="Tipo de cambio SUNAT:"
+                        android:textSize="12sp"
+                        android:textColor="@color/odoo_text_secondary"/>
+                    <TextView
+                        android:id="@+id/tvExchangeRateValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Compra: -- | Venta: --"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/odoo_primary"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- 0. SELECTOR DE OPERACIÓN (COMPRA / VENTA) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                android:visibility="gone"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="2dp"
                 app:cardBackgroundColor="@color/white">
@@ -200,15 +240,19 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilCustomer"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Buscar Cliente (RUC/Nombre)">
+                        android:hint="Buscar Cliente (RUC/Nombre)"
+                        app:endIconMode="clear_text"
+                        app:startIconDrawable="@android:drawable/ic_menu_search">
 
                         <AutoCompleteTextView
                             android:id="@+id/actvCustomer"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:completionThreshold="1"
+                            android:dropDownAnchor="@id/tilCustomer"
                             android:inputType="text"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -224,7 +268,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 3. CABECERA DE FACTURA -->
+            <!-- 3. DETALLES DEL DOCUMENTO (CABECERA) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -232,67 +276,126 @@
                 app:cardCornerRadius="8dp"
                 app:cardElevation="2dp">
 
-                <GridLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:columnCount="2"
+                    android:orientation="vertical"
                     android:padding="16dp">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="0dp"
+                    <!-- Fila 1: Diario y Plazo de Pago -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_marginEnd="8dp"
-                        android:hint="Serie">
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="F001"
-                            android:enabled="false"/>
-                    </com.google.android.material.textfield.TextInputLayout>
+                        android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:hint="Correlativo">
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:layout_width="match_parent"
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilJournal"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="000001"
-                            android:enabled="false"/>
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:enabled="false"
+                            android:focusable="false"
+                            android:hint="Diario / Serie">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="0dp"
+                            <AutoCompleteTextView
+                                android:id="@+id/actvJournal"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="none" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilPaymentTerm"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Plazo de Pago">
+                            <AutoCompleteTextView
+                                android:id="@+id/actvPaymentTerm"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="none"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <!-- Fila 2: Moneda y Fecha -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilCurrency"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:hint="Moneda">
+                            <AutoCompleteTextView
+                                android:id="@+id/actvCurrency"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="none"
+                                android:text="PEN"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilDate"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Fecha">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/tietDate"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:focusable="false"
+                                android:clickable="true"
+                                tools:text="12/03/2026"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <!-- Campo de Referencia (Solo para Notas de Crédito) -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilReference"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:hint="Moneda">
+                        android:hint="Doc. Referencia (Ej: F001-00123)"
+                        android:visibility="gone"
+                        app:startIconDrawable="@android:drawable/ic_menu_agenda">
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tietReference"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="PEN"/>
+                            android:inputType="textCapCharacters" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- Observaciones -->
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilNotes"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
                         android:layout_marginTop="8dp"
-                        android:hint="Fecha">
+                        android:hint="Observaciones / Notas"
+                        app:startIconDrawable="@android:drawable/ic_menu_edit">
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tietNotes"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            tools:text="11/03/2026"/>
+                            android:inputType="textMultiLine"
+                            android:minLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                </GridLayout>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- 4. DETALLE DE PRODUCTOS -->
@@ -310,7 +413,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_invoice_line"/>
+                tools:listitem="@layout/item_linea_factura"/>
 
             <Button
                 android:id="@+id/btnAddProduct"

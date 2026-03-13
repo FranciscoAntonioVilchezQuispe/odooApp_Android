@@ -72,9 +72,77 @@ data class Contact(
     val email: String?,
     val phone: String?,
     val vat: String?,
-    val address: String?,
-    val image_128: Any? 
+    val street: String?,
+    val l10n_latam_identification_type_id: Any?,
+    val image_128: Any?,
+    val customer_rank: Int? = 0,
+    val supplier_rank: Int? = 0
 ) : Serializable {
     val avatarBase64: String?
         get() = if (image_128 is String) image_128 else null
 }
+data class Product(
+    val id: Int,
+    val name: String,
+    val lst_price: Double?,
+    val type: String?,
+    val qty_available: Double? = 0.0,
+    val default_code: String? = null,
+    val property_account_income_id: Any? = null,
+    val property_account_expense_id: Any? = null
+) : Serializable
+
+data class Currency(
+    val id: Int,
+    val name: String,
+    val symbol: String? = null
+) : Serializable
+
+data class Account(
+    val id: Int,
+    val name: String,
+    val code: String? = null
+) : Serializable
+
+data class Journal(
+    val id: Int,
+    val name: String,
+    val code: String, // Serie ej: F001
+    val type: String
+) : Serializable
+
+data class PaymentTerm(
+    val id: Int,
+    val name: String,
+    val line_ids: List<Int>? = null
+) : Serializable
+
+data class AnalyticAccount(
+    val id: Int,
+    val name: String
+) : Serializable
+
+data class Uom(
+    val id: Int,
+    val name: String
+) : Serializable
+
+data class Tax(
+    val id: Int,
+    val name: String,
+    val amount: Double? = 0.0
+) : Serializable
+
+/**
+ * Representa una línea de factura en el formulario (Estado local antes de enviar a Odoo).
+ */
+data class InvoiceLine(
+    var product: Product? = null,
+    var account: Account? = null,
+    var analyticAccount: AnalyticAccount? = null,
+    var quantity: Double = 1.0,
+    var uom: Uom? = null,
+    var priceUnit: Double = 0.0,
+    var taxes: List<Tax> = emptyList(),
+    var priceSubtotal: Double = 0.0
+) : Serializable

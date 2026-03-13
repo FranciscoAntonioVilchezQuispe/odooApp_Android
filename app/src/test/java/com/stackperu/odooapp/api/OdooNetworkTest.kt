@@ -63,7 +63,7 @@ class OdooNetworkTest {
                 )
             )
             
-            val contactsResponse = apiService.getContacts(OdooRequest(params = callKwParams))
+            val contactsResponse = apiService.executeKwList(OdooRequest(params = callKwParams))
             
             if (contactsResponse.isSuccessful) {
                 println("¡ÉXITO! Se obtuvieron ${contactsResponse.body()?.result?.size} contactos.")

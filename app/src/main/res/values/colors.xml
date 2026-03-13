@@ -7,6 +7,7 @@
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="white_translucent">#B3FFFFFF</color>
     <color name="gray_light">#F5F5F5</color>
     <color name="gray_dark">#666666</color>
     <color name="red_logout">#D32F2F</color> <!-- Color para el botón de cerrar sesión -->
@@ -24,5 +25,7 @@
     <color name="odoo_primary">#017E84</color>
     <color name="odoo_secondary">#875A7B</color>
     <color name="odoo_background">#F5F5F5</color>
+    <color name="odoo_surface">#FFFFFF</color>
     <color name="odoo_text">#333333</color>
+    <color name="odoo_text_secondary">#666666</color>
 </resources>

@@ -52,4 +52,15 @@ object FormatterHelper {
         formato.maximumFractionDigits = 2
         return formato.format(numero)
     }
+
+    /**
+     * Formatea iniciales de cada letra de una palabra de un texto con un maximo de 2 caracteres .
+     */
+    fun String.initials(maxLetters: Int = 2): String {
+        return this.trim()
+            .split(" ")
+            .filter { it.isNotEmpty() }
+            .take(maxLetters)
+            .joinToString("") { it.first().uppercaseChar().toString() }
+    }
 }

@@ -9,6 +9,7 @@
 
         <!-- Color de la barra de estado superior del teléfono -->
         <item name="android:statusBarColor" tools:targetApi="l">@color/stack_blue_primary</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
 
     <style name="Theme.OdooApp" parent="Base.Theme.OdooApp" />

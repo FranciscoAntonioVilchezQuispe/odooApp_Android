@@ -56,12 +56,13 @@ class ListaContactos : AppCompatActivity() {
 
     private fun configurarBarraSuperior() {
         actualizarInfoUsuario()
+        binding.tvAppTitle.text = "Agenda de Contactos"
         binding.btnBack.setOnClickListener { finish() }
     }
 
     private fun configurarRecyclerView() {
         contactAdapter = AdaptadorContacto(contactList, isKanbanView = true) { contacto ->
-            val intent = Intent(this, DetalleContacto::class.java)
+            val intent = Intent(this, FormularioContacto::class.java)
             intent.putExtra("CONTACT", contacto)
             lanzadorFormulario.launch(intent)
         }
@@ -70,6 +71,7 @@ class ListaContactos : AppCompatActivity() {
     }
 
     private fun configurarBusqueda() {
+        binding.searchView.setQueryHint("Buscar en agenda...")
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 obtenerContactos(query ?: "")
@@ -107,39 +109,16 @@ class ListaContactos : AppCompatActivity() {
         
         lifecycleScope.launch {
             try {
-                val dominio = if (busqueda.isNotEmpty()) {
-                    listOf("|", "|",
-                        listOf("name", "ilike", busqueda),
-                        listOf("email", "ilike", busqueda),
-                        listOf("phone", "ilike", busqueda))
-                } else { emptyList<Any>() }
-
-                val callKwParams = CallKwParams(
-                    model = "res.partner",
-                    method = "search_read",
-                    args = listOf(dominio), 
-                    kwargs = Kwargs(
-                        fields = listOf("id", "name", "email", "phone", "vat"),
-                        offset = 0,
-                        limit = 100,
-                        order = ordenActual
-                    )
-                )
-
-                val response = RetrofitClient.apiService.executeKwList(OdooRequest(params = callKwParams))
-                val odooResponse = response.body()
-
-                if (response.isSuccessful && odooResponse != null) {
-                    if (odooResponse.error != null) {
-                        Log.e("OdooApp", "Error: ${odooResponse.error.message}")
-                    } else {
-                        contactList = odooResponse.result?.toMutableList() ?: mutableListOf()
-                        contactAdapter.updateData(contactList)
-                        binding.tvPivotView.text = "Resumen (Pivot):\nTotal de Contactos: ${contactList.size}"
-                    }
-                }
+                // Usamos el repositorio centralizado
+                contactList = com.stackperu.odooapp.data.ContactRepository.buscarContactos(
+                    query = busqueda,
+                    limit = 100
+                ).toMutableList()
+                
+                contactAdapter.updateData(contactList)
+                binding.tvPivotView.text = "Resumen (Pivot):\nTotal de Contactos: ${contactList.size}"
             } catch (e: Exception) {
-                Log.e("OdooApp", "Error", e)
+                Log.e("OdooApp", "Error al obtener contactos", e)
             } finally {
                 binding.progressBar.visibility = View.GONE
             }

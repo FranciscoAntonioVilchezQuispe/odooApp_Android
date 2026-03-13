@@ -4,10 +4,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.stackperu.odooapp.databinding.ItemLineaFacturaBinding
-import com.stackperu.odooapp.model.invoice.InvoiceLine
+import com.stackperu.odooapp.model.InvoiceLine
 
-class AdaptadorLineaFactura(private val lines: List<InvoiceLine>) :
-    RecyclerView.Adapter<AdaptadorLineaFactura.ViewHolder>() {
+class AdaptadorLineaFactura(
+    private val lines: MutableList<InvoiceLine>,
+    private val onLineRemoved: (Int) -> Unit
+) : RecyclerView.Adapter<AdaptadorLineaFactura.ViewHolder>() {
 
     class ViewHolder(val binding: ItemLineaFacturaBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -18,11 +20,30 @@ class AdaptadorLineaFactura(private val lines: List<InvoiceLine>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val line = lines[position]
-        holder.binding.tvProductTitle.text = line.productTitle
+        holder.binding.tvProductTitle.text = line.product?.name ?: "Producto sin nombre"
         holder.binding.tvQtyPrice.text = String.format("%.2f x S/ %.2f", line.quantity, line.priceUnit)
-        holder.binding.tvLineSubtotal.text = String.format("S/ %.2f (inc. IGV)", line.total)
-        holder.binding.tvTax.text = line.taxDescription
+        
+        // Mostramos el total de la línea (cantidad * precio unitario)
+        holder.binding.tvLineSubtotal.text = String.format("S/ %.2f", line.quantity * line.priceUnit)
+        
+        val taxText = if (line.taxes.isNotEmpty()) {
+            line.taxes.joinToString { it.name }
+        } else {
+            "Sin impuestos"
+        }
+        holder.binding.tvTax.text = taxText
+
+        holder.itemView.setOnLongClickListener {
+            onLineRemoved(position)
+            true
+        }
     }
 
     override fun getItemCount() = lines.size
+
+    fun updateData(newLines: List<InvoiceLine>) {
+        lines.clear()
+        lines.addAll(newLines)
+        notifyDataSetChanged()
+    }
 }

@@ -46,9 +46,6 @@ class SessionCookieJar : CookieJar {
     }
 }
 
-// Eliminamos el interceptor de reintentos manual para usar la configuración nativa de OkHttp
-// que demostró funcionar en la prueba unitaria.
-
 object RetrofitClient {
     const val BASE_URL = AppConfig.BASE_URL
 
@@ -60,11 +57,11 @@ object RetrofitClient {
             level = HttpLoggingInterceptor.Level.BODY
         })
         .protocols(listOf(Protocol.HTTP_1_1)) // HTTP/1.1 es esencial para Odoo
-        .connectionPool(ConnectionPool(0, 1, TimeUnit.NANOSECONDS)) // Sin pooling para evitar conexiones muertas
+        .connectionPool(ConnectionPool(0, 1, TimeUnit.NANOSECONDS))
         .connectTimeout(60, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .writeTimeout(60, TimeUnit.SECONDS)
-        .retryOnConnectionFailure(true) // Reintento nativo de OkHttp
+        .retryOnConnectionFailure(true)
         .build()
 
     val apiService: OdooApiService by lazy {
@@ -74,5 +71,22 @@ object RetrofitClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(OdooApiService::class.java)
+    }
+
+    val identityApiService: IdentityApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(AppConfig.IDENTITY_API_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(IdentityApiService::class.java)
+    }
+
+    val sunatApiService: SunatApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://www.sunat.gob.pe/")
+            .client(okHttpClient)
+            .build()
+            .create(SunatApiService::class.java)
     }
 }

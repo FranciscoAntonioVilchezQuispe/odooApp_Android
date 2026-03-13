@@ -41,7 +41,7 @@ class DetalleContacto : AppCompatActivity() {
             binding.etEmail.setText(it.email ?: "No definido")
             binding.etPhone.setText(it.phone ?: "No definido")
             binding.etVat.setText(it.vat ?: "No definido")
-            binding.etAddress.setText(it.address ?: "No definido")
+            binding.etAddress.setText(it.street ?: "No definido")
 
             // Procesar y mostrar la imagen en Base64
             val base64Image = it.avatarBase64

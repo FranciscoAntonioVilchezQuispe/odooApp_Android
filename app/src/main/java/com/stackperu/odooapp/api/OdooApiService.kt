@@ -27,4 +27,34 @@ interface OdooApiService {
      */
     @POST("/web/dataset/call_kw")
     suspend fun executeKwList(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<Contact>>>
+
+    /**
+     * Ejecuta una llamada genérica que devuelve una lista de productos.
+     */
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListProduct(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<Product>>>
+
+    /**
+     * Devuelve una lista de monedas.
+     */
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListCurrency(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<Currency>>>
+
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListAccount(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<Account>>>
+
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListAnalytic(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<AnalyticAccount>>>
+
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListUom(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<Uom>>>
+
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListTax(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<Tax>>>
+
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListJournal(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<Journal>>>
+
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListPaymentTerm(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<PaymentTerm>>>
 }
