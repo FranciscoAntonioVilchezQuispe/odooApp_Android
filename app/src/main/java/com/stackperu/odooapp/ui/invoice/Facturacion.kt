@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.stackperu.odooapp.AppConfig
 import com.stackperu.odooapp.R
 import com.stackperu.odooapp.api.RetrofitClient
 import com.stackperu.odooapp.data.UserSession
@@ -33,7 +34,7 @@ import java.util.*
 class Facturacion : AppCompatActivity() {
 
     private lateinit var binding: FacturacionBinding
-    private var currentMoveType = "out_invoice" // Por defecto: Venta
+    private var currentMoveType = AppConfig.INVOICE_TYPE_SALE // Por defecto: Venta
     private var searchJob: Job? = null
     private val calendar = Calendar.getInstance()
     private var contactoSeleccionado: com.stackperu.odooapp.model.Contact? = null
@@ -47,12 +48,16 @@ class Facturacion : AppCompatActivity() {
     private var monedasDisponibles: List<Currency> = emptyList()
     private var monedaSeleccionada: Currency? = null
 
+    private var detractionTypes: List<DetractionType> = emptyList()
+    private var selectedDetractionType: DetractionType? = null
+    private var aplicoDetraccion = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = FacturacionBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        currentMoveType = intent.getStringExtra("MOVE_TYPE") ?: "out_invoice"
+        currentMoveType = intent.getStringExtra("MOVE_TYPE") ?: AppConfig.INVOICE_TYPE_SALE
 
         configurarTipoComprobante()
         configurarTipoOperacion()
@@ -61,6 +66,7 @@ class Facturacion : AppCompatActivity() {
         configurarSelectorMoneda()
         configurarSelectorFecha()
         configurarDiariosYPlazos()
+        configurarDetracciones()
         configurarAcciones()
         actualizarInfoUsuario()
         cargarTipoCambioSunat()
@@ -91,7 +97,7 @@ class Facturacion : AppCompatActivity() {
     private fun configurarTipoOperacion() {
         binding.toggleOperationType.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
-                val nuevoModo = if (checkedId == R.id.btnTypeSale) "out_invoice" else "in_invoice"
+                val nuevoModo = if (checkedId == R.id.btnTypeSale) AppConfig.INVOICE_TYPE_SALE else AppConfig.INVOICE_TYPE_PURCHASE
                 aplicarModoOperacion(nuevoModo)
             }
         }
@@ -99,7 +105,7 @@ class Facturacion : AppCompatActivity() {
 
     private fun aplicarModoOperacion(modo: String) {
         currentMoveType = modo
-        if (modo == "out_invoice") {
+        if (modo == AppConfig.INVOICE_TYPE_SALE) {
             binding.toggleOperationType.check(R.id.btnTypeSale)
             binding.tvAppTitle.text = "Nueva Venta"
             binding.tvCustomerLabel.text = "Información del Cliente"
@@ -131,7 +137,7 @@ class Facturacion : AppCompatActivity() {
     }
 
     private fun cargarDiarios() {
-        val odooType = if (currentMoveType == "out_invoice") "sale" else "purchase"
+        val odooType = if (currentMoveType == AppConfig.INVOICE_TYPE_SALE) "sale" else "purchase"
         lifecycleScope.launch {
             try {
                 val results = com.stackperu.odooapp.data.ProductRepository.obtenerDiarios(odooType)
@@ -207,7 +213,50 @@ class Facturacion : AppCompatActivity() {
         binding.toggleGroupType.addOnButtonCheckedListener { _, _, isChecked ->
             if (isChecked) {
                 actualizarVisibilidadReferencia()
+                evaluarVisibilidadDetraccion()
             }
+        }
+    }
+
+    private fun configurarDetracciones() {
+        binding.swDetraction.setOnCheckedChangeListener { _, isChecked ->
+            aplicoDetraccion = isChecked
+            binding.layoutDetractionFields.visibility = if (isChecked) View.VISIBLE else View.GONE
+            if (isChecked && detractionTypes.isEmpty()) {
+                cargarTiposDetraccion()
+            }
+            actualizarTotales()
+        }
+
+        binding.actvDetractionType.setOnItemClickListener { _, _, position, _ ->
+            selectedDetractionType = detractionTypes.getOrNull(position)
+            actualizarTotales()
+        }
+    }
+
+    private fun cargarTiposDetraccion() {
+        lifecycleScope.launch {
+            try {
+                val results = com.stackperu.odooapp.data.ProductRepository.obtenerTiposDetraccion()
+                detractionTypes = results
+                val names = results.map { "${it.name} (${it.percentage ?: 0.0}%)" }
+                val adapter = ArrayAdapter(this@Facturacion, android.R.layout.simple_dropdown_item_1line, names)
+                binding.actvDetractionType.setAdapter(adapter)
+            } catch (e: Exception) {
+                Log.e("OdooApp", "Error cargando detracciones", e)
+            }
+        }
+    }
+
+    private fun evaluarVisibilidadDetraccion() {
+        val isFactura = binding.toggleGroupType.checkedButtonId == R.id.btnTypeFact
+        val isVenta = currentMoveType == AppConfig.INVOICE_TYPE_SALE
+        
+        // SUNAT: Detracciones aplican mayormente a Facturas de Venta/Compra
+        binding.cardDetraction.visibility = if (isFactura) View.VISIBLE else View.GONE
+        
+        if (!isFactura) {
+            binding.swDetraction.isChecked = false
         }
     }
 
@@ -225,7 +274,7 @@ class Facturacion : AppCompatActivity() {
         binding.rvInvoiceLines.adapter = adaptadorLineas
 
         binding.btnAddProduct.setOnClickListener {
-            val dialog = DialogDetalleLinea(currentMoveType == "out_invoice") { nuevaLinea ->
+            val dialog = DialogDetalleLinea(currentMoveType == AppConfig.INVOICE_TYPE_SALE) { nuevaLinea ->
                 listaLineasFactura.add(nuevaLinea)
                 adaptadorLineas.notifyItemInserted(listaLineasFactura.size - 1)
                 actualizarTotales()
@@ -248,6 +297,24 @@ class Facturacion : AppCompatActivity() {
         binding.tvSubtotal.text = FormatterHelper.formatearMoneda(subtotal)
         binding.tvIgv.text = FormatterHelper.formatearMoneda(igv)
         binding.tvTotal.text = FormatterHelper.formatearMoneda(total)
+
+        // Lógica de Detracción
+        if (aplicoDetraccion && selectedDetractionType != null) {
+            val porcentaje = selectedDetractionType!!.effectivePercentage
+            val montoDetraccion = total * (porcentaje / 100.0)
+            binding.tvDetractionInfo.text = "Tasa: $porcentaje% | Monto: ${FormatterHelper.formatearMoneda(montoDetraccion)}"
+            binding.tvDetractionInfo.visibility = View.VISIBLE
+        } else {
+            binding.tvDetractionInfo.visibility = View.GONE
+        }
+
+        // Validación visual de umbral de detracción (S/ 700)
+        if (total > AppConfig.DETRACTION_THRESHOLD && !aplicoDetraccion && binding.toggleGroupType.checkedButtonId == R.id.btnTypeFact) {
+            binding.tvTotal.setTextColor(getColor(R.color.red_logout))
+            Toast.makeText(this, "El monto supera los S/ ${AppConfig.DETRACTION_THRESHOLD.toInt()}, considere aplicar detracción", Toast.LENGTH_SHORT).show()
+        } else {
+            binding.tvTotal.setTextColor(getColor(R.color.stack_blue_primary))
+        }
     }
 
     private fun configurarSeleccionCliente() {
@@ -257,7 +324,7 @@ class Facturacion : AppCompatActivity() {
         binding.actvCustomer.setOnItemClickListener { _, _, position, _ ->
             if (position < listaContactosSugeridos.size) {
                 val contacto = listaContactosSugeridos[position]
-                val rank = if (currentMoveType == "out_invoice") contacto.customer_rank ?: 0 else contacto.supplier_rank ?: 0
+                val rank = if (currentMoveType == AppConfig.INVOICE_TYPE_SALE) contacto.customer_rank ?: 0 else contacto.supplier_rank ?: 0
                 
                 if (rank == 0) {
                     mostrarDialogoConfirmacionPromocion(contacto) {
@@ -307,7 +374,7 @@ class Facturacion : AppCompatActivity() {
     private fun buscarContactosEnOdoo(query: String) {
         lifecycleScope.launch {
             try {
-                val rankField = if (currentMoveType == "out_invoice") "customer_rank" else "supplier_rank"
+                val rankField = if (currentMoveType == AppConfig.INVOICE_TYPE_SALE) "customer_rank" else "supplier_rank"
                 listaContactosSugeridos = com.stackperu.odooapp.data.ContactRepository.buscarContactos(
                     query = query,
                     rankField = rankField,
@@ -315,7 +382,7 @@ class Facturacion : AppCompatActivity() {
                 )
                 
                 val nombres = listaContactosSugeridos.map { 
-                    val rank = if (currentMoveType == "out_invoice") it.customer_rank ?: 0 else it.supplier_rank ?: 0
+                    val rank = if (currentMoveType == AppConfig.INVOICE_TYPE_SALE) it.customer_rank ?: 0 else it.supplier_rank ?: 0
                     val prefix = if (rank == 0) "(Contacto) " else ""
                     "$prefix${it.name}${if (!it.vat.isNullOrEmpty()) " - ${it.vat}" else ""}" 
                 }
@@ -335,7 +402,7 @@ class Facturacion : AppCompatActivity() {
     }
 
     private fun mostrarDialogoConfirmacionPromocion(contacto: Contact, onConfirm: () -> Unit) {
-        val tipo = if (currentMoveType == "out_invoice") "Cliente" else "Proveedor"
+        val tipo = if (currentMoveType == AppConfig.INVOICE_TYPE_SALE) "Cliente" else "Proveedor"
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle("Promover a $tipo")
             .setMessage("El contacto '${contacto.name}' actualmente es un contacto genérico. ¿Deseas promoverlo a $tipo para esta factura?")
@@ -380,7 +447,7 @@ class Facturacion : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val params = CallKwParams(
-                    model = "res.currency",
+                    model = AppConfig.MODEL_CURRENCY,
                     method = "search_read",
                     args = listOf(listOf(listOf("active", "=", true))),
                     kwargs = Kwargs(fields = listOf("id", "name", "symbol"), limit = 20)
@@ -396,11 +463,11 @@ class Facturacion : AppCompatActivity() {
                         monedaSeleccionada = monedasDisponibles[position]
                     }
 
-                    // PEN por defecto
-                    val pen = monedasDisponibles.find { it.name == "PEN" }
-                    if (pen != null) {
-                        monedaSeleccionada = pen
-                        binding.actvCurrency.setText("PEN", false)
+                    // Moneda por defecto de configuración
+                    val def = monedasDisponibles.find { it.name == AppConfig.DEFAULT_CURRENCY_CODE }
+                    if (def != null) {
+                        monedaSeleccionada = def
+                        binding.actvCurrency.setText(AppConfig.DEFAULT_CURRENCY_CODE, false)
                     } else if (monedasDisponibles.isNotEmpty()) {
                         monedaSeleccionada = monedasDisponibles[0]
                         binding.actvCurrency.setText(monedasDisponibles[0].name, false)
@@ -411,10 +478,8 @@ class Facturacion : AppCompatActivity() {
                 val adapter = ArrayAdapter(this@Facturacion, android.R.layout.simple_dropdown_item_1line, codigos)
                 binding.actvCurrency.setAdapter(adapter)
                 binding.actvCurrency.setOnItemClickListener { _, _, position, _ ->
-                    // Aunque falle la API, si tenemos monedas locales predecibles (id puede variar)
-                    // Por ahora el fallback es limitado, pero al menos no rompe la UI
                 }
-                binding.actvCurrency.setText("PEN", false)
+                binding.actvCurrency.setText(AppConfig.DEFAULT_CURRENCY_CODE, false)
             }
         }
     }
@@ -487,6 +552,13 @@ class Facturacion : AppCompatActivity() {
                     "invoice_line_ids" to invoiceLines,
                     "narration" to binding.tietNotes.text.toString()
                 )
+
+                // Agregar datos de detracción si aplica
+                if (aplicoDetraccion && selectedDetractionType != null) {
+                    payload["l10n_pe_withhold_type_id"] = selectedDetractionType!!.id
+                    payload["l10n_pe_withhold_percentage"] = selectedDetractionType!!.percentage ?: 0.0
+                    // Odoo 19 suele usar estos campos en la localización peruana
+                }
 
                 // Si está configurado para guardar como borrador
                 if (com.stackperu.odooapp.AppConfig.SAVE_AS_DRAFT) {

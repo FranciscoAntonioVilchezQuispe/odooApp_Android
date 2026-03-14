@@ -52,7 +52,7 @@ object ContactRepository {
             }
 
             val params = CallKwParams(
-                model = "res.partner",
+                model = AppConfig.MODEL_PARTNER,
                 method = "search_read",
                 args = listOf(domain),
                 kwargs = Kwargs(

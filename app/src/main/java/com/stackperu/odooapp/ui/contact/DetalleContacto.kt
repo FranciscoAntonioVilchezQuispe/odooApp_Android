@@ -38,10 +38,10 @@ class DetalleContacto : AppCompatActivity() {
         // Llenamos la información en el formulario
         contact?.let {
             binding.etName.setText(it.name)
-            binding.etEmail.setText(it.email ?: "No definido")
-            binding.etPhone.setText(it.phone ?: "No definido")
-            binding.etVat.setText(it.vat ?: "No definido")
-            binding.etAddress.setText(it.street ?: "No definido")
+            binding.etEmail.setText(it.email?.takeIf { e -> e != "false" && e.isNotBlank() } ?: "No definido")
+            binding.etPhone.setText(it.phone?.takeIf { p -> p != "false" && p.isNotBlank() } ?: "No definido")
+            binding.etVat.setText(it.vat?.takeIf { v -> v != "false" && v.isNotBlank() } ?: "No definido")
+            binding.etAddress.setText(it.street?.takeIf { s -> s != "false" && s.isNotBlank() } ?: "No definido")
 
             // Procesar y mostrar la imagen en Base64
             val base64Image = it.avatarBase64

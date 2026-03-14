@@ -13,6 +13,9 @@ import com.stackperu.odooapp.databinding.FormularioClienteBinding
 import com.stackperu.odooapp.model.CallKwParams
 import com.stackperu.odooapp.model.Kwargs
 import com.stackperu.odooapp.model.OdooRequest
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import android.os.Build
 import kotlinx.coroutines.launch
 
 /**
@@ -22,6 +25,9 @@ class FormularioCliente : AppCompatActivity() {
 
     private lateinit var binding: FormularioClienteBinding
     private var tiposIdentificacion = mutableMapOf<String, Int>()
+    private var regiones = mutableMapOf<String, Int>()
+    private var provincias = mutableMapOf<String, Int>()
+    private var distritos = mutableMapOf<String, Int>()
     private var clienteActual: com.stackperu.odooapp.model.Contact? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,10 +35,13 @@ class FormularioCliente : AppCompatActivity() {
         binding = FormularioClienteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        configurarModoPantallaCompleta()
+
         clienteActual = intent.getSerializableExtra("CONTACT") as? com.stackperu.odooapp.model.Contact
 
         configurarInterfaz()
         cargarTiposIdentificacion()
+        cargarRegiones()
     }
 
     private fun configurarInterfaz() {
@@ -55,7 +64,7 @@ class FormularioCliente : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val params = CallKwParams(
-                    model = "l10n_latam.identification.type",
+                    model = AppConfig.MODEL_IDENTIFICATION_TYPE,
                     method = "search_read",
                     args = listOf(listOf<Any>()),
                     kwargs = Kwargs(fields = listOf("id", "name"))
@@ -85,13 +94,83 @@ class FormularioCliente : AppCompatActivity() {
         }
     }
 
+    private fun cargarRegiones() {
+        lifecycleScope.launch {
+            try {
+                val results = com.stackperu.odooapp.data.ProductRepository.obtenerRegiones()
+                val names = results.map { 
+                    regiones[it.name] = it.id
+                    it.name 
+                }
+                val adapter = ArrayAdapter(this@FormularioCliente, android.R.layout.simple_dropdown_item_1line, names)
+                binding.actvRegion.setAdapter(adapter)
+                
+                binding.actvRegion.setOnItemClickListener { _, _, position, _ ->
+                    val regionId = regiones[names[position]] ?: return@setOnItemClickListener
+                    cargarProvincias(regionId)
+                }
+            } catch (e: Exception) {
+                Log.e("OdooApp", "Error al cargar regiones", e)
+            }
+        }
+    }
+
+    private fun cargarProvincias(regionId: Int) {
+        binding.actvProvince.setText("")
+        binding.actvDistrict.setText("")
+        binding.actvProvince.isEnabled = false
+        binding.actvDistrict.isEnabled = false
+        
+        lifecycleScope.launch {
+            try {
+                val results = com.stackperu.odooapp.data.ProductRepository.obtenerProvincias(regionId)
+                provincias.clear()
+                val names = results.map { 
+                    provincias[it.name] = it.id
+                    it.name 
+                }
+                val adapter = ArrayAdapter(this@FormularioCliente, android.R.layout.simple_dropdown_item_1line, names)
+                binding.actvProvince.setAdapter(adapter)
+                binding.actvProvince.isEnabled = true
+                
+                binding.actvProvince.setOnItemClickListener { _, _, position, _ ->
+                    val provinceId = provincias[names[position]] ?: return@setOnItemClickListener
+                    cargarDistritos(provinceId)
+                }
+            } catch (e: Exception) {
+                Log.e("OdooApp", "Error al cargar provincias", e)
+            }
+        }
+    }
+
+    private fun cargarDistritos(provinceId: Int) {
+        binding.actvDistrict.setText("")
+        binding.actvDistrict.isEnabled = false
+        
+        lifecycleScope.launch {
+            try {
+                val results = com.stackperu.odooapp.data.ProductRepository.obtenerDistritos(provinceId)
+                distritos.clear()
+                val names = results.map { 
+                    distritos[it.name] = it.id
+                    it.name 
+                }
+                val adapter = ArrayAdapter(this@FormularioCliente, android.R.layout.simple_dropdown_item_1line, names)
+                binding.actvDistrict.setAdapter(adapter)
+                binding.actvDistrict.isEnabled = true
+            } catch (e: Exception) {
+                Log.e("OdooApp", "Error al cargar distritos", e)
+            }
+        }
+    }
+
     private fun cargarDatosCliente(contacto: com.stackperu.odooapp.model.Contact) {
         binding.tvAppTitle.text = "Editar Cliente / Proveedor"
         binding.etName.setText(contacto.name)
-        binding.etVat.setText(contacto.vat ?: "")
-        binding.etEmail.setText(contacto.email ?: "")
-        binding.etPhone.setText(contacto.phone ?: "")
-        binding.etAddress.setText(contacto.street ?: "")
+        binding.etVat.setText(contacto.vat?.takeIf { it != "false" } ?: "")
+        binding.etEmail.setText(contacto.email?.takeIf { it != "false" } ?: "")
+        binding.etPhone.setText(contacto.phone?.takeIf { it != "false" } ?: "")
+        binding.etAddress.setText(contacto.street?.takeIf { it != "false" } ?: "")
         
         // Manejo del tipo de identificación (Odoo devuelve [id, name] o id)
         val typeInfo = contacto.l10n_latam_identification_type_id
@@ -119,7 +198,7 @@ class FormularioCliente : AppCompatActivity() {
             try {
                 // 1. Validar existencia en Odoo
                 val paramsSearch = CallKwParams(
-                    model = "res.partner",
+                    model = AppConfig.MODEL_PARTNER,
                     method = "search_read",
                     args = listOf(listOf(listOf("vat", "=", vat))),
                     kwargs = Kwargs(
@@ -143,17 +222,17 @@ class FormularioCliente : AppCompatActivity() {
                         clienteActual = p // Guardamos la referencia para promoverlo si el usuario acepta
                         
                         binding.etName.setText(p.name)
-                        binding.etEmail.setText(p.email ?: "")
-                        binding.etPhone.setText(p.phone ?: "")
-                        binding.etAddress.setText(p.street ?: "")
+                        binding.etEmail.setText(p.email?.takeIf { it != "false" } ?: "")
+                        binding.etPhone.setText(p.phone?.takeIf { it != "false" } ?: "")
+                        binding.etAddress.setText(p.street?.takeIf { it != "false" } ?: "")
                     } else {
                         // Ya es cliente o proveedor
                         Toast.makeText(this@FormularioCliente, "Ya existe en Odoo: ${p.name}", Toast.LENGTH_LONG).show()
                         binding.cardInfoContacto.visibility = View.GONE
                         binding.etName.setText(p.name)
-                        binding.etEmail.setText(p.email ?: "")
-                        binding.etPhone.setText(p.phone ?: "")
-                        binding.etAddress.setText(p.street ?: "")
+                        binding.etEmail.setText(p.email?.takeIf { it != "false" } ?: "")
+                        binding.etPhone.setText(p.phone?.takeIf { it != "false" } ?: "")
+                        binding.etAddress.setText(p.street?.takeIf { it != "false" } ?: "")
                         binding.btnSave.isEnabled = false
                     }
                 } else {
@@ -212,7 +291,7 @@ class FormularioCliente : AppCompatActivity() {
                     "supplier_rank" to 1
                 )
                 val params = CallKwParams(
-                    model = "res.partner",
+                    model = AppConfig.MODEL_PARTNER,
                     method = "write",
                     args = listOf(listOf(contacto.id), data)
                 )
@@ -263,6 +342,15 @@ class FormularioCliente : AppCompatActivity() {
                     "customer_rank" to 1
                 )
                 
+                // Ubicación (Estado, Provincia, Distrito)
+                val regionName = binding.actvRegion.text.toString()
+                val provinceName = binding.actvProvince.text.toString()
+                val districtName = binding.actvDistrict.text.toString()
+                
+                regiones[regionName]?.let { data["state_id"] = it }
+                provincias[provinceName]?.let { data["city_id"] = it }
+                distritos[districtName]?.let { data["l10n_pe_district"] = it }
+                
                 if (typeId != null) {
                     data["l10n_latam_identification_type_id"] = typeId
                 }
@@ -271,7 +359,7 @@ class FormularioCliente : AppCompatActivity() {
                 val metodo = if (esEdicion) "write" else "create"
                 val args = if (esEdicion) listOf(listOf(clienteActual!!.id), data) else listOf(data)
 
-                val params = CallKwParams(model = "res.partner", method = metodo, args = args)
+                val params = CallKwParams(model = AppConfig.MODEL_PARTNER, method = metodo, args = args)
                 val response = RetrofitClient.apiService.executeKw(OdooRequest(params = params))
                 
                 if (response.isSuccessful && response.body()?.error == null) {
@@ -288,6 +376,22 @@ class FormularioCliente : AppCompatActivity() {
                 binding.pbSearch.visibility = View.GONE
                 binding.btnSave.isEnabled = true
             }
+        }
+    }
+
+    private fun configurarModoPantallaCompleta() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+            val controller = window.insetsController
+            if (controller != null) {
+                controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
         }
     }
 }

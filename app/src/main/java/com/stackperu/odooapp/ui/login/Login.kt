@@ -102,7 +102,7 @@ class Login : AppCompatActivity() {
     private suspend fun fetchInitialContactsAndNavigate() {
         try {
             val callKwParams = CallKwParams(
-                model = "res.partner",
+                model = AppConfig.MODEL_PARTNER,
                 method = "search_read",
                 args = listOf(emptyList<Any>()), 
                 kwargs = Kwargs(

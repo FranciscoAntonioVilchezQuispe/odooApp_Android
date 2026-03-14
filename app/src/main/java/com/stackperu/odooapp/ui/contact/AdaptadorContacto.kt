@@ -60,8 +60,8 @@ class AdaptadorContacto(
 
         fun bind(contact: Contact) {
             tvName.text = contact.name
-            tvEmail.text = contact.email ?: "Sin correo"
-            tvPhone.text = contact.phone ?: "Sin teléfono"
+            tvEmail.text = contact.email?.takeIf { it != "false" && it.isNotBlank() } ?: "Sin correo"
+            tvPhone.text = contact.phone?.takeIf { it != "false" && it.isNotBlank() } ?: "Sin teléfono"
 
             // Cargamos la imagen desde la URL de Odoo para mayor estabilidad
             val sessionCookie = com.stackperu.odooapp.api.RetrofitClient.cookieJar.getSessionCookieValue()

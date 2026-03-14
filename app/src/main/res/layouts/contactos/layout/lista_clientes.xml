@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/odoo_background"
-    android:fitsSystemWindows="true">
+    tools:context=".ui.contact.ListaClientes">
 
     <!-- Barra Superior -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/odoo_primary"
+        android:background="@color/stack_blue_primary"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
@@ -81,7 +81,7 @@
         android:layout_margin="24dp"
         android:src="@android:drawable/ic_input_add"
         app:tint="@color/white"
-        android:backgroundTint="@color/odoo_secondary"
+        android:backgroundTint="@color/stack_teal_accent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

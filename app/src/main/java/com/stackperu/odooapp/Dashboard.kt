@@ -67,7 +67,7 @@ class Dashboard : AppCompatActivity() {
 
         binding.cardSale.setOnClickListener {
             val intent = Intent(this, Facturacion::class.java)
-            intent.putExtra("MOVE_TYPE", "out_invoice")
+            intent.putExtra("MOVE_TYPE", AppConfig.INVOICE_TYPE_SALE)
             startActivity(intent)
         }
 
@@ -101,7 +101,7 @@ class Dashboard : AppCompatActivity() {
 
         val ivAvatar = dialog.findViewById<ImageView>(R.id.ivUserAvatarDialog)
         dialog.findViewById<TextView>(R.id.tvUserNameDialog).text = usuario.name
-        dialog.findViewById<TextView>(R.id.tvUserEmailDialog).text = usuario.email
+        dialog.findViewById<TextView>(R.id.tvUserEmailDialog).text = usuario.email?.takeIf { it != "false" } ?: ""
         
         val sessionCookie = RetrofitClient.cookieJar.getSessionCookieValue()
         val avatarUrl = "${RetrofitClient.BASE_URL}/web/image?model=res.users&id=${usuario.id}&field=image_128"

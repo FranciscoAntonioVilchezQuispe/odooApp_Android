@@ -5,8 +5,6 @@ import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
-import okhttp3.Interceptor
-import okhttp3.Response
 import okhttp3.Protocol
 import okhttp3.ConnectionPool
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,7 +13,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import com.stackperu.odooapp.AppConfig
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.ConcurrentHashMap
-import java.io.IOException
 
 /**
  * Gestor de Cookies para Odoo 19.
@@ -54,13 +51,16 @@ object RetrofitClient {
     private val okHttpClient = OkHttpClient.Builder()
         .cookieJar(cookieJar)
         .addInterceptor(HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (AppConfig.ENABLE_NETWORK_LOGS) 
+                HttpLoggingInterceptor.Level.BODY 
+            else 
+                HttpLoggingInterceptor.Level.NONE
         })
         .protocols(listOf(Protocol.HTTP_1_1)) // HTTP/1.1 es esencial para Odoo
         .connectionPool(ConnectionPool(0, 1, TimeUnit.NANOSECONDS))
-        .connectTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
+        .connectTimeout(AppConfig.NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .readTimeout(AppConfig.NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .writeTimeout(AppConfig.NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .retryOnConnectionFailure(true)
         .build()
 

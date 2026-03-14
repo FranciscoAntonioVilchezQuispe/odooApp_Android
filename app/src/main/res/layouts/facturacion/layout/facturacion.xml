@@ -11,7 +11,7 @@
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/odoo_primary"
+        android:background="@color/stack_blue_primary"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
@@ -98,7 +98,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@android:drawable/ic_dialog_info"
-                        app:tint="@color/odoo_primary"/>
+                        app:tint="@color/stack_blue_primary"/>
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -114,7 +114,7 @@
                         android:text="Compra: -- | Venta: --"
                         android:textSize="12sp"
                         android:textStyle="bold"
-                        android:textColor="@color/odoo_primary"/>
+                        android:textColor="@color/stack_blue_primary"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -141,7 +141,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="VENTA (Ingreso)"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        app:backgroundTint="@color/stack_teal_accent"
+                        android:textColor="@color/white" />
                     <Button
                         android:id="@+id/btnTypePurchase"
                         style="?attr/materialButtonOutlinedStyle"
@@ -149,7 +151,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="COMPRA (Gasto)"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        app:backgroundTint="@android:color/transparent"
+                        android:textColor="?attr/colorOnSurface" />
                 </com.google.android.material.button.MaterialButtonToggleGroup>
             </com.google.android.material.card.MaterialCardView>
 
@@ -190,7 +194,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Factura"
-                            android:textSize="12sp"/>
+                            android:textSize="12sp"
+                            app:backgroundTint="@color/stack_teal_accent"
+                            android:textColor="@color/white"/>
 
                         <Button
                             android:id="@+id/btnTypeBol"
@@ -240,7 +246,7 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilCustomer"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Buscar Cliente (RUC/Nombre)"
@@ -262,7 +268,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="+ Nuevo Cliente"
-                        android:textColor="@color/odoo_primary"
+                        android:textColor="@color/stack_teal_accent"
                         android:textSize="12sp"/>
 
                 </LinearLayout>
@@ -290,7 +296,7 @@
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilJournal"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -308,7 +314,7 @@
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilPaymentTerm"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -330,7 +336,7 @@
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilCurrency"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -423,8 +429,77 @@
                 android:layout_marginTop="8dp"
                 android:text="Agregar Producto"
                 app:icon="@android:drawable/ic_input_add"
-                android:textColor="@color/odoo_primary"
-                app:strokeColor="@color/odoo_primary"/>
+                android:textColor="@color/stack_teal_accent"
+                app:strokeColor="@color/stack_teal_accent"/>
+
+            <!-- SECCIÓN DE DETRACCIONES (Perú) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardDetraction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Aplica Detracción"
+                            android:textStyle="bold"
+                            android:textColor="@color/odoo_text"/>
+                        
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/swDetraction"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutDetractionFields"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilDetractionType"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Tipo de Detracción">
+                            
+                            <AutoCompleteTextView
+                                android:id="@+id/actvDetractionType"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="none" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <TextView
+                            android:id="@+id/tvDetractionInfo"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:textSize="12sp"
+                            android:textColor="@color/stack_blue_primary"
+                            tools:text="Tasa: 10% | Monto: S/ 0.00"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- 5. RESUMEN DE TOTALES -->
             <com.google.android.material.card.MaterialCardView
@@ -491,7 +566,7 @@
                             android:layout_height="wrap_content"
                             android:text="TOTAL"
                             android:textStyle="bold"
-                            android:textColor="@color/odoo_primary"
+                            android:textColor="@color/stack_blue_primary"
                             android:textSize="18sp"/>
                         <TextView
                             android:id="@+id/tvTotal"
@@ -500,7 +575,7 @@
                             android:layout_alignParentEnd="true"
                             android:text="S/ 0.00"
                             android:textStyle="bold"
-                            android:textColor="@color/odoo_primary"
+                            android:textColor="@color/stack_blue_primary"
                             android:textSize="18sp"/>
                     </RelativeLayout>
 
@@ -517,7 +592,7 @@
         android:layout_margin="16dp"
         android:text="Emitir Comprobante"
         android:textColor="@color/white"
-        app:backgroundTint="@color/odoo_secondary"
+        app:backgroundTint="@color/stack_teal_accent"
         app:icon="@android:drawable/ic_menu_send"
         app:iconTint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"

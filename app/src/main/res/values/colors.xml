@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Colores corporativos de Stack Perú Partners -->
-    <color name="stack_blue_primary">#0A1128</color> <!-- Azul Marino Oscuro -->
-    <color name="stack_blue_light">#1A2552</color>
-    <color name="stack_teal_accent">#007B7F</color> <!-- Verde/Cyan (Teal) del logo -->
+    <!-- Colores corporativos Estrictos de Stack Perú Partners -->
+    <color name="stack_blue_primary">#0F172A</color> <!-- Slate 900 (Azul profundo corporativo) -->
+    <color name="stack_blue_light">#1E293B</color> <!-- Slate 800 -->
+    <color name="stack_teal_accent">#0D9488</color> <!-- Teal 600 (Logo accent) -->
+
+    <!-- Sistema de color Rigid Theme (Estático) -->
+    <color name="rigid_background">#F8FAFC</color> <!-- Fondo claro texturizado Slate 50 -->
+    <color name="rigid_surface">#FFFFFF</color> <!-- Blanco puro para cards -->
+    <color name="rigid_text_primary">#1E293B</color> <!-- Texto oscuro sobre claro -->
+    <color name="rigid_text_secondary">#64748B</color> <!-- Texto secundario gris azulado -->
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
@@ -28,4 +34,10 @@
     <color name="odoo_surface">#FFFFFF</color>
     <color name="odoo_text">#333333</color>
     <color name="odoo_text_secondary">#666666</color>
+
+    <!-- Colores de advertencia semánticos -->
+    <color name="warning_background_light">#FFF3E0</color>
+    <color name="warning_background">#FFE0B2</color>
+    <color name="warning_text_primary">#E65100</color>
+    <color name="warning_text_secondary">#5D4037</color>
 </resources>

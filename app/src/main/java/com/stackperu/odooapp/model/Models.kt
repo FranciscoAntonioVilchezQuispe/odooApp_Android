@@ -1,5 +1,6 @@
 package com.stackperu.odooapp.model
 
+import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 import kotlin.random.Random
 
@@ -73,6 +74,9 @@ data class Contact(
     val phone: String?,
     val vat: String?,
     val street: String?,
+    val state_id: Any?,
+    val city_id: Any?,
+    val l10n_pe_district: Any?,
     val l10n_latam_identification_type_id: Any?,
     val image_128: Any?,
     val customer_rank: Int? = 0,
@@ -81,6 +85,40 @@ data class Contact(
     val avatarBase64: String?
         get() = if (image_128 is String) image_128 else null
 }
+
+data class State(
+    val id: Int,
+    val name: String,
+    val code: String? = null
+) : Serializable
+
+data class City(
+    val id: Int,
+    val name: String,
+    val state_id: Int? = null
+) : Serializable
+
+data class District(
+    val id: Int,
+    val name: String,
+    val city_id: Int? = null
+) : Serializable
+
+data class DetractionType(
+    val id: Int,
+    val name: String,
+    val code: String? = null,
+    val percentage: Double? = 0.0,
+    val amount: Double? = 0.0,
+    val service_amount: Double? = 0.0
+) : Serializable {
+    // Retorna el primer valor numérico encontrado entre los campos posibles
+    val effectivePercentage: Double
+        get() = (percentage ?: 0.0).takeIf { it > 0 } 
+            ?: (amount ?: 0.0).takeIf { it > 0 } 
+            ?: (service_amount ?: 0.0)
+}
+
 data class Product(
     val id: Int,
     val name: String,

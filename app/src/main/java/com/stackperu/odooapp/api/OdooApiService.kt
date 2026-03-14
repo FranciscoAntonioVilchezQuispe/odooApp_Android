@@ -57,4 +57,16 @@ interface OdooApiService {
 
     @POST("/web/dataset/call_kw")
     suspend fun executeKwListPaymentTerm(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<PaymentTerm>>>
+
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListState(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<State>>>
+
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListCity(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<City>>>
+
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListDistrict(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<District>>>
+
+    @POST("/web/dataset/call_kw")
+    suspend fun executeKwListDetractionType(@Body request: OdooRequest<CallKwParams>): Response<OdooResponse<List<DetractionType>>>
 }

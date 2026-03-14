@@ -1,15 +1,22 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Tema Oscuro (Night Mode) Base de la Aplicación -->
-    <style name="Base.Theme.OdooApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Colores Principales -->
+    <!-- Tema Oscuro (Anulado) - Forzado a Light para mantener consistencia de marca -->
+    <!-- Esto asegura que incluso si el usuario activa el modo oscuro, la app se vea igual -->
+    <style name="Base.Theme.OdooApp" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/stack_blue_primary</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/stack_teal_accent</item>
         <item name="colorOnSecondary">@color/white</item>
 
-        <!-- Color de la barra de estado superior del teléfono -->
-        <item name="android:statusBarColor" tools:targetApi="l">@color/stack_blue_primary</item>
-        <item name="android:windowFullscreen">true</item>
+        <item name="colorSurface">@color/rigid_surface</item>
+        <item name="colorOnSurface">@color/rigid_text_primary</item>
+        <item name="colorSurfaceVariant">@color/rigid_background</item>
+        <item name="colorOnSurfaceVariant">@color/rigid_text_secondary</item>
+        <item name="android:windowBackground">@color/odoo_background</item>
+
+        <item name="android:statusBarColor">@color/stack_blue_primary</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
     <style name="Theme.OdooApp" parent="Base.Theme.OdooApp" />

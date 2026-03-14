@@ -57,9 +57,9 @@ class FormularioContacto : AppCompatActivity() {
         if (contact != null) {
             binding.tvTitle.text = "Editar Contacto"
             binding.etName.setText(contact?.name)
-            binding.etEmail.setText(contact?.email)
-            binding.etPhone.setText(contact?.phone)
-            binding.etVat.setText(contact?.vat)
+            binding.etEmail.setText(contact?.email?.takeIf { it != "false" })
+            binding.etPhone.setText(contact?.phone?.takeIf { it != "false" })
+            binding.etVat.setText(contact?.vat?.takeIf { it != "false" })
 
             // Cargar imagen actual
             val base64 = contact?.avatarBase64
@@ -111,7 +111,8 @@ class FormularioContacto : AppCompatActivity() {
             Toast.makeText(this, "Error al procesar imagen", Toast.LENGTH_SHORT).show()
         }
     }
-    private fun guardarContacto() {
+
+    private fun guardarContacto() {
         val nombre = binding.etName.text.toString().trim()
         val correo = binding.etEmail.text.toString().trim()
         val telefono = binding.etPhone.text.toString().trim()
@@ -141,14 +142,14 @@ class FormularioContacto : AppCompatActivity() {
                 if (contact != null) {
                     // MODO EDICIÓN: método 'write'
                     params = CallKwParams(
-                        model = "res.partner",
+                        model = AppConfig.MODEL_PARTNER,
                         method = "write",
                         args = listOf(listOf(contact!!.id), data)
                     )
                 } else {
                     // MODO CREACIÓN: método 'create'
                     params = CallKwParams(
-                        model = "res.partner",
+                        model = AppConfig.MODEL_PARTNER,
                         method = "create",
                         args = listOf(data)
                     )
@@ -205,7 +206,7 @@ class FormularioContacto : AppCompatActivity() {
 
     private fun actualizarInfoUsuario() {
         val usuario = com.stackperu.odooapp.data.UserSession.currentUser ?: return
-        binding.tvUserNameSmall.text = usuario.name
+        binding.tvUserName.text = usuario.name
         val sessionCookie = RetrofitClient.cookieJar.getSessionCookieValue()
         if (sessionCookie.isNotEmpty()) {
             val avatarUrl = "${RetrofitClient.BASE_URL}/web/image?model=res.users&id=${usuario.id}&field=image_128"
@@ -216,7 +217,7 @@ class FormularioContacto : AppCompatActivity() {
                 .skipMemoryCache(true)
                 .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
                 .placeholder(R.drawable.avatar_placeholder)
-                .into(binding.ivUserAvatarSmall)
+                .into(binding.ivUserAvatar)
         }
     }
 }

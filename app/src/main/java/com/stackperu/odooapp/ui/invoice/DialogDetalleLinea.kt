@@ -169,7 +169,7 @@ class DialogDetalleLinea(
             }
 
             // Seleccionar IGV 18% por defecto
-            val igv18 = taxes.find { it.name.contains("18") || (it.amount ?: 0.0) == 18.0 }
+            val igv18 = taxes.find { it.name.contains("${AppConfig.DEFAULT_TAX_PERCENTAGE.toInt()}") || (it.amount ?: 0.0) == AppConfig.DEFAULT_TAX_PERCENTAGE }
             if (igv18 != null) {
                 selectedTaxes = listOf(igv18)
                 binding.actvTaxes.setText(igv18.name, false)

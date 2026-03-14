@@ -12,7 +12,7 @@
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="220dp"
-        android:background="@color/odoo_primary"
+        android:background="@color/stack_blue_primary"
         android:padding="24dp"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:text="Bienvenido,"
-            android:textColor="@color/white_translucent"
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ivLogo" />
@@ -62,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Stack Perú Partners"
-            android:textColor="@color/white_translucent"
+            android:textColor="@color/white"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvUserName" />
@@ -92,6 +92,7 @@
                 android:layout_margin="12dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="6dp"
+                app:cardBackgroundColor="@color/rigid_surface"
                 android:clickable="true"
                 android:focusable="true"
                 app:rippleColor="@color/gray_light">
@@ -107,14 +108,14 @@
                         android:layout_width="56dp"
                         android:layout_height="56dp"
                         android:src="@android:drawable/ic_menu_myplaces"
-                        app:tint="@color/odoo_primary" />
+                        app:tint="@color/stack_blue_primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="Clientes y Proveedores"
-                        android:textColor="@color/odoo_text"
+                        android:textColor="@color/rigid_text_primary"
                         android:textStyle="bold"
                         android:textSize="14sp"/>
                 </LinearLayout>
@@ -129,6 +130,7 @@
                 android:layout_margin="12dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="6dp"
+                app:cardBackgroundColor="@color/rigid_surface"
                 android:clickable="true"
                 android:focusable="true"
                 app:rippleColor="@color/gray_light">
@@ -144,14 +146,14 @@
                         android:layout_width="56dp"
                         android:layout_height="56dp"
                         android:src="@android:drawable/ic_menu_agenda"
-                        app:tint="@color/odoo_secondary" />
+                        app:tint="@color/stack_teal_accent" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="Catálogo de Productos"
-                        android:textColor="@color/odoo_text"
+                        android:textColor="@color/rigid_text_primary"
                         android:textStyle="bold"
                         android:textSize="14sp"/>
                 </LinearLayout>
@@ -166,6 +168,7 @@
                 android:layout_margin="12dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="6dp"
+                app:cardBackgroundColor="@color/rigid_surface"
                 android:clickable="true"
                 android:focusable="true"
                 app:rippleColor="@color/gray_light">
@@ -188,7 +191,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="Agenda de Contactos"
-                        android:textColor="@color/odoo_text"
+                        android:textColor="@color/rigid_text_primary"
                         android:textStyle="bold"
                         android:textSize="14sp"/>
                 </LinearLayout>
@@ -203,6 +206,7 @@
                 android:layout_margin="12dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="6dp"
+                app:cardBackgroundColor="@color/rigid_surface"
                 android:clickable="true"
                 android:focusable="true"
                 app:rippleColor="@color/gray_light">
@@ -218,14 +222,14 @@
                         android:layout_width="56dp"
                         android:layout_height="56dp"
                         android:src="@android:drawable/ic_menu_edit"
-                        app:tint="@color/odoo_primary" />
+                        app:tint="@color/stack_blue_primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="Fact. Venta"
-                        android:textColor="@color/odoo_text"
+                        android:textColor="@color/rigid_text_primary"
                         android:textStyle="bold"
                         android:textSize="14sp"/>
                 </LinearLayout>
@@ -240,6 +244,7 @@
                 android:layout_margin="12dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="6dp"
+                app:cardBackgroundColor="@color/rigid_surface"
                 android:clickable="true"
                 android:focusable="true"
                 app:rippleColor="@color/gray_light">
@@ -255,14 +260,14 @@
                         android:layout_width="56dp"
                         android:layout_height="56dp"
                         android:src="@android:drawable/ic_input_add"
-                        app:tint="@color/odoo_primary" />
+                        app:tint="@color/stack_teal_accent" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="Fact. Compra"
-                        android:textColor="@color/odoo_text"
+                        android:textColor="@color/rigid_text_primary"
                         android:textStyle="bold"
                         android:textSize="14sp"/>
                 </LinearLayout>

@@ -1,107 +1,92 @@
-# Guía de Arquitectura y Estructura del Proyecto: OdooApp (Stack Perú Partners)
+# 🚀 OdooApp - Stack Perú Partners
 
-Esta guía documenta exhaustivamente la estructura de carpetas, la arquitectura elegida y el flujo de comunicación de la aplicación nativa Android construida en Kotlin, diseñada para integrarse directamente con el backend de **Odoo 19** mediante JSON-RPC 2.0.
+![Versión](https://img.shields.io/badge/Versi%C3%B3n-1.0-blue)
+![Min SDK](https://img.shields.io/badge/Min_SDK-24-green)
+![Target SDK](https://img.shields.io/badge/Target_SDK-36-orange)
+![Repositorio](https://img.shields.io/badge/Repo-FranciscoAntonioVilchezQuispe/odooApp__Android-blue?logo=github)
 
----
-
-## 1. Arquitectura del Proyecto
-
-El proyecto sigue el patrón **MVC (Model-View-Controller)** con principios de **Clean Architecture** adaptados a Android. El objetivo es mantener una estricta separación de responsabilidades, lo que permite que el código sea predecible, escalable y fácil de depurar.
-
-La comunicación de red se gestiona mediante la librería **Retrofit** y la manipulación/parseo de respuestas asíncronas con **Kotlin Coroutines** (`lifecycleScope.launch`).
+Guía profesional de arquitectura y desarrollo de la aplicación nativa para la gestión de **Odoo 19** con localización peruana. Esta aplicación ha sido diseñada bajo estándares senior para garantizar robustez, mantenibilidad y una experiencia de usuario fluida.
 
 ---
 
-## 2. Estructura de Directorios Lógicos (Kotlin)
-
-Ruta base: `app/src/main/java/com/stackperu/odooapp/`
-
-### 📦 Raíz del Paquete
-
-* **`AppConfig.kt`**: Archivo *Singleton* centralizado que actúa como el diccionario de constantes globales de la aplicación. Aquí se define la `BASE_URL` (hacia dónde apunta Retrofit) y el `DATABASE_NAME`. Es vital configurar aquí la IP local de tu PC (ej. `192.168.100.51`) si pruebas en un dispositivo físico o emulador.
-* **`MainActivity.kt`**: El **Dashboard principal**. Sus responsabilidades ahora incluyen:
-    1. Verificar sesión activa.
-    2. Carga inicial optimizada (solo campos ligeros: ID, Nombre, Email) para garantizar estabilidad de red.
-    3. Búsqueda avanzada multi-campo y ordenamiento dinámico.
-    4. Alternancia entre vistas Kanban, Lista y Pivot.
-
-### 📦 Paquete: `/api/` (Capa de Red)
-
-* **`RetrofitClient.kt`**: Motor de conexión optimizado para Odoo 19.
-  * **Estabilidad Ferroviaria**: Se fuerza el protocolo `HTTP/1.1` y se deshabilita el `Connection Pooling` para evitar el error `unexpected end of stream` común en Odoo.
-  * **`SessionCookieJar`**: Gestiona el `session_id`. Se ha mejorado para proveer la cookie a componentes externos (como Glide) permitiendo carga de imágenes autenticadas.
-* **`OdooApiService.kt`**: Interfaz unificada. Utiliza el método genérico `executeKw` para todas las llamadas ORM (`search_read`, `write`, `create`), reduciendo la complejidad del cliente Retrofit.
-
-### 📦 Paquete: `/model/` (Capa de Dominio)
-
-* **`Models.kt`**:
-  * **`Kwargs` Robusto**: Los parámetros de búsqueda (`fields`, `offset`, `limit`) son ahora opcionales (null por defecto). Esto permite reutilizar el mismo modelo para lecturas y para escrituras (`write`), evitando enviar parámetros inesperados a Odoo.
-  * **`Contact`**: Modelo optimizado que soporta ID, nombre, email, teléfono y VAT (identificación).
-
-### 📦 Paquete: `/data/` (Capa de Estado)
-
-* **`UserSession.kt`**: Un gestor de sesión ultraligero que vive en la memoria RAM. Almacena temporalmente el objeto `User` mientras la app está abierta. Provee el método `clear()` invocado cuando el usuario hace clic en "Cerrar sesión".
-
-### 📦 Paquete: `/ui/` (Capa de Presentación)
-
-* **`/login/LoginActivity.kt`**: Punto de entrada con validación de red y carga inicial ultra-ligera de datos post-login.
-* **`/contact/ContactAdapter.kt`**: Puente visual inteligente. Implementa **Lazy Loading de imágenes**: en lugar de procesar Base64 pesado, solicita cada foto bajo demanda mediante URLs autenticadas de Odoo, mejorando drásticamente el rendimiento.
-* **`/contact/ContactFormActivity.kt`**: **Motor de CRUD completo**. Gestiona tanto la creación de nuevos socios como la edición de existentes. Soporta carga de fotos desde la galería y validación de campos obligatorios antes de sincronizar con Odoo via RPC.
+## 📱 Vista Previa
+| Acceso Seguro | Dashboard Corporativo | Gestión de Contactos | Emisión de Facturas |
+| :---: | :---: | :---: | :---: |
+| ![Pantalla Login](screenshots/login.png) | ![Dashboard](screenshots/dashboard.png) | ![Contactos](screenshots/contactos.png) | ![Facturación](screenshots/facturacion.png) |
 
 ---
 
-## 3. Estructura de Directorios de Recursos (XML)
+## 🏗️ Arquitectura del Proyecto
+El proyecto implementa un patrón **MVC (Model-View-Controller)** con principios de **Clean Architecture**, asegurando que la lógica de negocio esté desacoplada de la interfaz de usuario.
 
-Ruta base: `app/src/main/res/`
-
-La carpeta `res/` maneja los activos visuales. Hemos implementado una **Estructura Modular de Layouts** para evitar la acumulación de archivos en una sola carpeta, utilizando `sourceSets` en Gradle.
-
-### 📐 `/layouts/` (Organización por Módulo)
-
-Cada módulo tiene su propia subcarpeta que contiene una carpeta `layout/` interna (requisito de Android):
-
-* **`/main/`**: Dashboard principal.
-  * `activity_main.xml`: Pantalla de inicio con accesos rápidos.
-  * `dialog_user_profile.xml`: Menú emergente de perfil.
-* **`/contact/`**: Gestión de socios.
-  * `activity_contact_list.xml`, `activity_contact_form.xml`, `activity_contact_detail.xml`.
-  * `item_contact_kanban.xml`, `item_contact_list.xml` (diseño de celdas).
-* **`/invoice/`**: Facturación y Comprobantes.
-  * `activity_invoice.xml`: Formulario dinámico de Venta/Compra.
-  * `item_invoice_line.xml`: Diseño de fila de producto.
-* **`/login/`**: Acceso y Perfil de Usuario.
-  * `activity_login.xml`: Pantalla de autenticación.
-  * `activity_edit_profile.xml`: Formulario de edición de datos personales.
-
-### 🎨 Otras carpetas de Recursos
-
-* **`/drawable/`**: Contiene `logo_stack_peru.png` y `avatar_placeholder.xml`.
-* **`/values/`**: 
-  * `colors.xml`: Identidad corporativa (Odoo Primary/Secondary).
-  * `strings.xml`: Textos internacionalizados.
-  * `themes.xml`: Estilos globales y colores de barra de estado.
-
-### 🌐 `/xml/`
-
-* **`network_security_config.xml`**: Configurado para permitir tráfico **Cleartext (HTTP)** hacia IPs locales específicas (ej. `192.168.100.51`), esencial para desarrollo sin certificados SSL.
+*   **Capa de Vista**: Implementada con **ViewBinding** para un acceso seguro a los componentes XML (`res/layouts/*`).
+*   **Capa de Datos (Data)**: Repositorios centralizados (`ContactRepository`, `ProductRepository`) que abstraen la complejidad de las llamadas JSON-RPC a Odoo 19 usando la clase estructural `CallKwParams`.
+*   **Comunicación**: Interfaz de red gestionada por **Retrofit 2** y OkHttp con un envoltorio genérico `RetrofitClient` para los endpoints y sesiones seguras en cookies.
+*   **Asincronía**: Uso intensivo de **Kotlin Coroutines** (`lifecycleScope.launch`) para operaciones puramente no bloqueantes en todo el ciclo de UI.
 
 ---
 
-## 4. Archivos Raíz Críticos
+## 🛠️ Tecnologías y Dependencias Principales
+El ecosistema moderno utilizado (*extraído directamente de `build.gradle.kts`*):
 
-* **`AndroidManifest.xml`**: El núcleo de permisos y registro de actividades. Indica qué Activity lanza primero la aplicación (`LoginActivity`) y exige expresamente permiso de `INTERNET` para que el celular no bloquee a Retrofit.
-* **`build.gradle.kts (App Level)`**: El gestor de dependencias (similar al `requirements.txt` en Python o `package.json`). Aquí se declaran librerías externas que el proyecto necesita descargar de internet para compilar:
-  * *Retrofit / Gson Converter* (Para las APIs y parseo de JSON)
-  * *Glide* (Para la carga y renderizado asíncrono y en caché de imágenes de perfil)
-  * *Material Components* (Para usar tarjetas con bordes redondeados y campos de texto modernos)
-  * *ViewModel & LiveData* (Agregados como cimientos recomendados por Google).
+| Categoría | Librería | Versión | Propósito |
+| :--- | :--- | :--- | :--- |
+| **Material UI** | `com.google.android.material:material` | *Config global* | Componentes Material 3 (Botones modernos, FABs, Diálogos limpios) |
+| **Network Client**| `com.squareup.retrofit2:retrofit` | `2.9.0` | Base estable para llamadas HTTP y JSON-RPC a Odoo |
+| **Serializer** | `com.squareup.retrofit2:converter-gson` | `2.9.0` | Interpretar el Payload JSON-RPC de Odoo y parsearlo a Modelos Kotlin |
+| **Media/Caching** | `com.github.bumptech.glide:glide` | `4.16.0` | Carga súper eficiente de avatares de usuario y catálogo de productos |
+| **Lifecycle API** | `androidx.lifecycle:lifecycle-viewmodel-ktx`| `2.8.3` | Sincronización asíncrona atada al ciclo de vida del usuario (`lifecycleScope`) |
+| **UI Components** | `androidx.recyclerview:recyclerview` | `1.3.2` | Listado hiper responsivo e indexado de Clientes/Productos en Layouts (Kanban y Listas) |
 
 ---
 
-## 5. Flujo Operativo Típico (Actualizado)
+## 🔒 Permisos de Android (`AndroidManifest.xml`)
+La aplicación solicita estrictamente lo necesario para funcionar de manera nativa:
 
-1. **Auth**: `LoginActivity` valida credenciales y el `CookieJar` guarda la sesión.
-2. **Sincronización Inicial**: Al abrir el Dashboard, se descargan los contactos pidiendo solo campos básicos para asegurar que la conexión no se sature.
-3. **Visualización**: El `ContactAdapter` dibuja la lista. Las imágenes se cargan en hilos secundarios por URL, manteniendo la app fluida.
-4. **Gestión (CRUD)**: Al tocar un contacto, se abre el formulario. Si editas (ej. cambias el teléfono), la app lanza un `executeKw` con el método `write`. La lógica de `Models.kt` asegura que solo se envíen los datos modificados, respetando el contrato de Odoo 19.
-5. **Cierre**: El log-out limpia cookies y redirige al inicio seguro.
+*   📱 `android.permission.INTERNET`: **Crítico.** Requerido para conectarse de ida y vuelta al ecosistema Odoo (JSON-RPC), así como consultar RENIEC/SUNAT asíncronamente.
+*   📡 `android.permission.ACCESS_NETWORK_STATE`: Requerido para reaccionar ante intermitencias de datos o WiFi y prevenir caídas molestas en la App al mandar facturas.
+*   🖼️ `android.permission.READ_EXTERNAL_STORAGE` (API ≤ 32) y `READ_MEDIA_IMAGES` (API 33+): Requeridos para que la aplicación logre seleccionar fotos de la galería y subirlas al editor del perfil maestro.
+
+---
+
+## ⚙️ Configuración y Variables Dinámicas (`AppConfig.kt`)
+La aplicación elimina la codificación rígida ("hardcoding") y extrae la operatividad a variables seguras y centralizadas:
+
+| Componente | Descripción | Extraído de |
+| :--- | :--- | :--- |
+| **Credenciales y Entorno** | Variables base para consumo como `BASE_URL`, `DATABASE_NAME` e `IDENTITY_API_TOKEN` para la SUNAT. | `AppConfig.kt` (Centralizado) |
+| **Constantes de Facturación**| El sistema deduce internamente transacciones mediante `INVOICE_TYPE_SALE` (`"out_invoice"`) y aplica porcentajes legales como el impuesto predeterminado al `18.0`. | `AppConfig.kt` (Operatividad Dinámica) |
+| **Modelos de Odoo** | Referencias persistentes y consistentes para evitar errores de redacción: `MODEL_USER`, `MODEL_PRODUCT`, `MODEL_INVOICE`, así como unificación estricta del Ubigeo Andino (`res.city`, `res.state`). | `AppConfig.kt` (Llamadas de API seguras) |
+
+---
+
+## 🔄 Flujo Principal de la App (User Journey)
+El marco de diseño de experiencia se divide en **5 etapas clave**:
+
+1.  **Ingreso y Autenticación** (`ui.login.Login`): Comprobación estricta en el servidor interno Odoo. Si la identidad es correcta, la sesión entra al `CookieJar`.
+2.  **Dashboard Corporativo** (`Dashboard.kt`): Concentrador estático inmersivo para ramificarse velozmente a las tareas maestras del ERP (Contactos, Productos, Facturas).
+3.  **Gestor Comercial** (`FormularioCliente`, `ListaContactos`): Alta fluida de Contactos. Si se introduce un RUC y la validación interna no cruza un usuario previo en Odoo, la App procede con el descubrimiento online inteligente con la SUNAT.
+4.  **Flujo Eficiente de Venta** (`ui.invoice.Facturacion`): Facturador unificado que soporta Múltiples Monedas (USD, PEN con carga real), cálculo granular de impuestos por producto, validación de retención general (> S/ 700) y subida a Odoo en directo.
+5.  **Cierre Inmediato**: Un log geo-dependiente que liquida inmediatamente las sesiones API de la Caché resguardando la entidad privada del negocio.
+
+---
+
+## 🎨 Branding y Experiencia de Usuario (UX)
+*   **Rigid Theme Fix**: La aplicación fuerza el modo estricto ("Light.NoActionBar") bloqueando inmersiones no deseadas del sistema operativo y manteniendo con brillantez el dualismo cromático (**Azul Slate** de soportes técnicos y **Teal Dinámico** para interacciones).
+*   **Modo Inmersivo Global**: Todas y cada una de las actividades anulan barras del OS y status estáticos en Android (Delegación al comportamiento Swipe-top-bottom) logrando 100% de la densidad de pantalla real para lectura.
+*   **Anti-Dynamic Color Blindspots**: Restricciones puestas en `themes.xml` limitando la auto-configuración de marcas como Huawei, Xiaomi o Honor ante su gestión autónoma del contraste, previniendo los infames "fondos quemados".
+
+---
+
+## 📋 Entorno de Compilación
+*   **IDE**: Android Studio (Versiones modernas basadas en IGB)
+*   **Gradle**: Configuración nativa del repositorio Kotlin DSL (KTS)
+*   **Min SDK Target**: 24
+*   **Compile SDK Objetivo**: 36
+
+---
+
+## 📄 Licencia Comercial
+© 2026 **Stack Perú Partners**.
+**Propietario - Todos los derechos reservados.**
+La copia, re-venta, descompilación o distribución no autorizada de este código fuente o del archivo APK ensamblado está estrictamente prohibida y regulada bajo las leyes locales e internacionales de propiedad intelectual.

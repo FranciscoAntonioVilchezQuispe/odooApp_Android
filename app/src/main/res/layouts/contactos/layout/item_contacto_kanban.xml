@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/rigid_surface"
     android:clickable="true"
     android:focusable="true">
 
@@ -32,7 +33,7 @@
             android:textStyle="bold"
             android:textSize="16sp"
             android:gravity="center"
-            android:textColor="@color/odoo_primary"
+            android:textColor="@color/rigid_text_primary"
             tools:text="Juan Perez" />
 
         <TextView
@@ -42,7 +43,7 @@
             android:layout_marginTop="4dp"
             android:textSize="12sp"
             android:gravity="center"
-            android:textColor="@color/gray_dark"
+            android:textColor="@color/rigid_text_secondary"
             tools:text="juan@example.com" />
 
         <TextView
@@ -52,7 +53,7 @@
             android:layout_marginTop="4dp"
             android:textSize="12sp"
             android:gravity="center"
-            android:textColor="@color/odoo_primary"
+            android:textColor="@color/rigid_text_secondary"
             tools:text="+51 987654321" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

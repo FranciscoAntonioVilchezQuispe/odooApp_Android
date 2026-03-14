@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/odoo_background"
-    android:fitsSystemWindows="true">
+    tools:context=".ui.contact.FormularioContacto">
 
     <!-- Barra Superior -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/odoo_primary"
+        android:background="@color/stack_blue_primary"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
@@ -40,7 +40,7 @@
             android:layout_marginStart="8dp"/>
 
         <ImageView
-            android:id="@+id/ivUserAvatarSmall"
+            android:id="@+id/ivUserAvatar"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginEnd="16dp"
@@ -50,7 +50,7 @@
             android:background="@drawable/avatar_placeholder" />
 
         <TextView
-            android:id="@+id/tvUserNameSmall"
+            android:id="@+id/tvUserName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
@@ -61,7 +61,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             app:layout_constraintStart_toEndOf="@id/tvTitle"
-            app:layout_constraintEnd_toStartOf="@id/ivUserAvatarSmall"
+            app:layout_constraintEnd_toStartOf="@id/ivUserAvatar"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
@@ -100,11 +100,11 @@
                     app:fabSize="mini"
                     android:src="@android:drawable/ic_menu_camera"
                     app:tint="@color/white"
-                    android:backgroundTint="@color/odoo_primary" />
+                    android:backgroundTint="@color/stack_teal_accent" />
             </FrameLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -118,7 +118,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -132,7 +132,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -146,7 +146,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -161,12 +161,13 @@
 
             <Button
                 android:id="@+id/btnSaveContact"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:layout_marginTop="16dp"
                 android:text="GUARDAR CONTACTO EN ODOO"
                 android:textColor="@color/white"
-                android:backgroundTint="@color/odoo_primary"
+                android:backgroundTint="@color/stack_teal_accent"
                 app:cornerRadius="8dp" />
 
             <ProgressBar

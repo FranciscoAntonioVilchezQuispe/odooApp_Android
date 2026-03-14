@@ -86,7 +86,7 @@ class ListaProductos : AppCompatActivity() {
                 }
 
                 val params = CallKwParams(
-                    model = "product.product",
+                    model = AppConfig.MODEL_PRODUCT,
                     method = "search_read",
                     args = listOf(dominio),
                     kwargs = Kwargs(

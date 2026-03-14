@@ -19,6 +19,7 @@ class FormularioProducto : AppCompatActivity() {
 
     private lateinit var binding: FormularioProductoBinding
     private var productoActual: com.stackperu.odooapp.model.Product? = null
+    private var uomsMap = mutableMapOf<String, Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +56,8 @@ class FormularioProducto : AppCompatActivity() {
 
     private fun configurarInterfaz() {
         binding.btnBack.setOnClickListener { finish() }
+        
+        cargarUdMs()
 
         // Configurar tipos de producto (mapeo interno para Odoo)
         val tiposOdoo = mapOf(
@@ -70,6 +73,30 @@ class FormularioProducto : AppCompatActivity() {
         }
     }
 
+    private fun cargarUdMs() {
+        lifecycleScope.launch {
+            try {
+                val results = com.stackperu.odooapp.data.ProductRepository.obtenerUdMs()
+                val names = results.map { 
+                    uomsMap[it.name] = it.id
+                    it.name 
+                }
+                val adapter = ArrayAdapter(this@FormularioProducto, android.R.layout.simple_dropdown_item_1line, names)
+                binding.actvUom.setAdapter(adapter)
+                
+                // Seleccionar 'Unidad' por defecto si es nuevo
+                if (productoActual == null) {
+                    val unidad = names.find { it.lowercase().contains("unidad") } ?: names.firstOrNull()
+                    if (unidad != null) {
+                        binding.actvUom.setText(unidad, false)
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("OdooApp", "Error cargando UdMs", e)
+            }
+        }
+    }
+
     private fun guardarProducto(tiposMap: Map<String, String>) {
         val name = binding.etName.text.toString().trim()
         val priceStr = binding.etPrice.text.toString().trim()
@@ -77,6 +104,9 @@ class FormularioProducto : AppCompatActivity() {
         val typeValue = tiposMap[typeLabel] ?: "consu"
         val internalRef = binding.etInternalRef.text.toString().trim()
         val barcode = binding.etBarcode.text.toString().trim()
+        val uomName = binding.actvUom.text.toString()
+        val uomId = uomsMap[uomName]
+        val description = binding.etDescription.text.toString().trim()
 
         if (name.isEmpty() || priceStr.isEmpty()) {
             Toast.makeText(this, "Nombre y Precio son obligatorios", Toast.LENGTH_SHORT).show()
@@ -99,6 +129,15 @@ class FormularioProducto : AppCompatActivity() {
                     "default_code" to internalRef
                 )
                 
+                if (uomId != null) {
+                    data["uom_id"] = uomId
+                    data["uom_po_id"] = uomId // Usualmente misma UdM para compra
+                }
+                
+                if (description.isNotEmpty()) {
+                    data["description_sale"] = description
+                }
+                
                 if (barcode.isNotEmpty()) {
                     data["barcode"] = barcode
                 }
@@ -113,7 +152,7 @@ class FormularioProducto : AppCompatActivity() {
                 }
 
                 val params = CallKwParams(
-                    model = "product.product",
+                    model = AppConfig.MODEL_PRODUCT,
                     method = metodo,
                     args = args
                 )

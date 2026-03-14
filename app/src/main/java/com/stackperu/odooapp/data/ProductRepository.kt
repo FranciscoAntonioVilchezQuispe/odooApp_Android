@@ -3,13 +3,16 @@ package com.stackperu.odooapp.data
 import com.stackperu.odooapp.api.RetrofitClient
 import com.stackperu.odooapp.model.*
 import android.util.Log
+import com.stackperu.odooapp.AppConfig
 
 /**
  * Repositorio para gestionar Productos y sus catálogos asociados (Cuentas, UdM, Impuestos).
  */
 object ProductRepository {
 
-    suspend fun buscarProductos(query: String, limit: Int = 15): List<Product> {
+    private val defaultContext = mapOf("lang" to AppConfig.DEFAULT_LANGUAGE_CODE)
+
+    suspend fun buscarProductos(query: String, limit: Int = AppConfig.SEARCH_RESULTS_LIMIT): List<Product> {
         return try {
             val domain = if (query.isNotEmpty()) {
                 listOf("|", "|", 
@@ -21,7 +24,7 @@ object ProductRepository {
             }
 
             val params = CallKwParams(
-                model = "product.product",
+                model = AppConfig.MODEL_PRODUCT,
                 method = "search_read",
                 args = listOf(domain),
                 kwargs = Kwargs(
@@ -30,7 +33,7 @@ object ProductRepository {
                         "property_account_income_id", "property_account_expense_id"
                     ),
                     limit = limit,
-                    context = mapOf("lang" to "es_PE")
+                    context = defaultContext
                 )
             )
 
@@ -50,21 +53,19 @@ object ProductRepository {
                 domain.add(listOf("name", "ilike", query))
                 domain.add(listOf("code", "ilike", query))
             }
-            // Filtrar solo cuentas que se pueden usar en asientos (deprecated=false)
-            // Odoo 19: deprecated es común
             domain.add(listOf("deprecated", "=", false))
             if (query.isNotEmpty()) {
                 domain.add(0, "&")
             }
 
             val params = CallKwParams(
-                model = "account.account",
+                model = AppConfig.MODEL_ACCOUNT,
                 method = "search_read",
                 args = listOf(domain),
                 kwargs = Kwargs(
                     fields = listOf("id", "name", "code"),
-                    limit = 50,
-                    context = mapOf("lang" to "es_PE")
+                    limit = AppConfig.DEFAULT_PAGE_LIMIT,
+                    context = defaultContext
                 )
             )
 
@@ -80,13 +81,13 @@ object ProductRepository {
         return try {
             val domain = listOf(listOf("type_tax_use", "=", type), listOf("active", "=", true))
             val params = CallKwParams(
-                model = "account.tax",
+                model = AppConfig.MODEL_TAX,
                 method = "search_read",
                 args = listOf(domain),
                 kwargs = Kwargs(
                     fields = listOf("id", "name", "amount"),
-                    limit = 10,
-                    context = mapOf("lang" to "es_PE")
+                    limit = 15,
+                    context = defaultContext
                 )
             )
             val response = RetrofitClient.apiService.executeKwListTax(OdooRequest(params = params))
@@ -100,13 +101,13 @@ object ProductRepository {
     suspend fun obtenerUdMs(): List<Uom> {
         return try {
             val params = CallKwParams(
-                model = "uom.uom",
+                model = AppConfig.MODEL_UOM,
                 method = "search_read",
                 args = emptyList(),
                 kwargs = Kwargs(
                     fields = listOf("id", "name"),
-                    limit = 50,
-                    context = mapOf("lang" to "es_PE")
+                    limit = AppConfig.DEFAULT_PAGE_LIMIT,
+                    context = defaultContext
                 )
             )
             val response = RetrofitClient.apiService.executeKwListUom(OdooRequest(params = params))
@@ -121,13 +122,13 @@ object ProductRepository {
         return try {
             val domain = listOf(listOf("code", "=", codigo), listOf("deprecated", "=", false))
             val params = CallKwParams(
-                model = "account.account",
+                model = AppConfig.MODEL_ACCOUNT,
                 method = "search_read",
                 args = listOf(domain),
                 kwargs = Kwargs(
                     fields = listOf("id", "name", "code"),
                     limit = 1,
-                    context = mapOf("lang" to "es_PE")
+                    context = defaultContext
                 )
             )
             val response = RetrofitClient.apiService.executeKwListAccount(OdooRequest(params = params))
@@ -142,12 +143,12 @@ object ProductRepository {
         return try {
             val domain = listOf(listOf("type", "=", type), listOf("active", "=", true))
             val params = CallKwParams(
-                model = "account.journal",
+                model = AppConfig.MODEL_JOURNAL,
                 method = "search_read",
                 args = listOf(domain),
                 kwargs = Kwargs(
                     fields = listOf("id", "name", "code", "type"),
-                    context = mapOf("lang" to "es_PE")
+                    context = defaultContext
                 )
             )
             val response = RetrofitClient.apiService.executeKwListJournal(OdooRequest(params = params))
@@ -161,12 +162,12 @@ object ProductRepository {
     suspend fun obtenerPlazosPago(): List<PaymentTerm> {
         return try {
             val params = CallKwParams(
-                model = "account.payment.term",
+                model = AppConfig.MODEL_PAYMENT_TERM,
                 method = "search_read",
                 args = emptyList(),
                 kwargs = Kwargs(
                     fields = listOf("id", "name"),
-                    context = mapOf("lang" to "es_PE")
+                    context = defaultContext
                 )
             )
             val response =
@@ -177,16 +178,16 @@ object ProductRepository {
             emptyList()
         }
     }
+
     suspend fun crearFactura(params: Map<String, Any>): Int? {
         return try {
             val callParams = CallKwParams(
-                model = "account.move",
+                model = AppConfig.MODEL_INVOICE,
                 method = "create",
                 args = listOf(params)
             )
             val response = RetrofitClient.apiService.executeKw(OdooRequest(params = callParams))
             if (response.isSuccessful) {
-                // Odoo devuelve el ID del registro creado como Double o Int en el campo 'result'
                 val result = response.body()?.result
                 (result as? Number)?.toInt() ?: (result as? List<*>)?.firstOrNull()?.let { (it as? Number)?.toInt() }
             } else {
@@ -195,6 +196,92 @@ object ProductRepository {
         } catch (e: Exception) {
             Log.e("OdooApp", "Error creando factura en Odoo", e)
             null
+        }
+    }
+
+    suspend fun obtenerRegiones(): List<State> {
+        return try {
+            val domain = listOf(listOf("country_id.code", "=", AppConfig.DEFAULT_COUNTRY_CODE))
+            val params = CallKwParams(
+                model = AppConfig.MODEL_STATE,
+                method = "search_read",
+                args = listOf(domain),
+                kwargs = Kwargs(fields = listOf("id", "name", "code"), order = "name ASC")
+            )
+            val response = RetrofitClient.apiService.executeKwListState(OdooRequest(params = params))
+            response.body()?.result ?: emptyList()
+        } catch (e: Exception) {
+            Log.e("OdooApp", "Error obteniendo regiones", e)
+            emptyList()
+        }
+    }
+
+    suspend fun obtenerProvincias(stateId: Int): List<City> {
+        return try {
+            val domain = listOf(listOf("state_id", "=", stateId))
+            val params = CallKwParams(
+                model = AppConfig.MODEL_CITY,
+                method = "search_read",
+                args = listOf(domain),
+                kwargs = Kwargs(fields = listOf("id", "name", "state_id"), order = "name ASC")
+            )
+            val response = RetrofitClient.apiService.executeKwListCity(OdooRequest(params = params))
+            response.body()?.result ?: emptyList()
+        } catch (e: Exception) {
+            Log.e("OdooApp", "Error obteniendo provincias", e)
+            emptyList()
+        }
+    }
+
+    suspend fun obtenerDistritos(cityId: Int): List<District> {
+        return try {
+            val domain = listOf(listOf("city_id", "=", cityId))
+            val params = CallKwParams(
+                model = AppConfig.MODEL_DISTRICT,
+                method = "search_read",
+                args = listOf(domain),
+                kwargs = Kwargs(fields = listOf("id", "name", "city_id"), order = "name ASC")
+            )
+            val response = RetrofitClient.apiService.executeKwListDistrict(OdooRequest(params = params))
+            response.body()?.result ?: emptyList()
+        } catch (e: Exception) {
+            Log.e("OdooApp", "Error obteniendo distritos", e)
+            emptyList()
+        }
+    }
+
+    suspend fun obtenerTiposDetraccion(): List<DetractionType> {
+        return try {
+            val result = llamarObtenerDetracciones(AppConfig.MODEL_DETRACTION)
+            if (result.isNotEmpty()) return result
+
+            llamarObtenerDetracciones("l10n_pe.detraction.type")
+        } catch (e: Exception) {
+            Log.e("OdooApp", "Error obteniendo tipos detracción", e)
+            emptyList()
+        }
+    }
+
+    private suspend fun llamarObtenerDetracciones(modelName: String): List<DetractionType> {
+        return try {
+            Log.d("OdooApp", "Consultando detracciones en modelo: $modelName")
+            val params = CallKwParams(
+                model = modelName,
+                method = "search_read",
+                args = listOf(emptyList<Any>()),
+                kwargs = Kwargs(
+                    fields = listOf("id", "name", "code", "percentage"),
+                    order = "code ASC",
+                    context = defaultContext
+                )
+            )
+            val response = RetrofitClient.apiService.executeKwListDetractionType(OdooRequest(params = params))
+            val list = response.body()?.result ?: emptyList()
+            Log.d("OdooApp", "Modelo $modelName devolvió ${list.size} registros")
+            list
+        } catch (e: Exception) {
+            Log.w("OdooApp", "Fallo consulta en modelo $modelName: ${e.message}")
+            emptyList()
         }
     }
 }

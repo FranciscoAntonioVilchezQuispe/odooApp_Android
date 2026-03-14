@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
+        android:name=".OdooApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -32,15 +33,13 @@
         <activity android:name=".ui.login.EditarPerfil" />
         <activity android:name=".ui.contact.FormularioContacto" />
         <activity android:name=".ui.contact.ListaContactos" 
-            android:label="Contactos" 
-            android:theme="@style/Theme.OdooApp" />
+            android:label="Contactos" />
         <activity android:name=".ui.contact.FormularioCliente" />
         <activity android:name=".ui.contact.ListaClientes" />
         <activity android:name=".ui.invoice.FormularioProducto" />
         <activity android:name=".ui.invoice.ListaProductos" />
         <activity android:name=".ui.invoice.Facturacion"
-            android:label="Facturación Electrónica" 
-            android:theme="@style/Theme.OdooApp" />
+            android:label="Facturación Electrónica" />
 
     </application>
 

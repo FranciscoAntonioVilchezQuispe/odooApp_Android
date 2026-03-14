@@ -66,7 +66,13 @@ class EditarPerfil : AppCompatActivity() {
 
     private fun refreshUserInfo() {
         val user = UserSession.currentUser ?: return
-        binding.tvUserNameSmall.text = user.name
+        
+        // Información en la barra superior
+        binding.tvUserName.text = user.name
+        
+        // Campos editables
+        binding.etName.setText(user.name)
+        binding.etEmail.setText(user.email?.takeIf { it != "false" })
         
         val sessionCookie = RetrofitClient.cookieJar.getSessionCookieValue()
         val avatarUrl = "${RetrofitClient.BASE_URL}/web/image?model=res.users&id=${user.id}&field=image_128"
@@ -91,7 +97,7 @@ class EditarPerfil : AppCompatActivity() {
             .skipMemoryCache(true)
             .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
             .placeholder(R.drawable.avatar_placeholder)
-            .into(binding.ivUserAvatarSmall)
+            .into(binding.ivUserAvatar)
     }
 
     private fun processSelectedImage(uri: Uri) {
@@ -136,7 +142,7 @@ class EditarPerfil : AppCompatActivity() {
 
                 // Estructura call_kw para el método 'write'
                 val params = CallKwParams(
-                    model = "res.users",
+                    model = AppConfig.MODEL_USER,
                     method = "write",
                     args = listOf(listOf(userId), updateData)
                 )
